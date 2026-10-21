@@ -1,0 +1,11 @@
+package-lock.json
+apps/api/
+packages/api-client/openapi.json
+packages/api-client/src/schema.d.ts
+node_modules/
+.next/
+dist/
+.expo/
+data/
+test-results/
+playwright-report/

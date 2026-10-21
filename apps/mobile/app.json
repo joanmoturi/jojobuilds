@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "JOJOBUILDS",
+    "slug": "jojobuilds",
+    "scheme": "jojobuilds",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.jojobuilds.landlord"
+    },
+    "android": {
+      "package": "com.jojobuilds.landlord",
+      "adaptiveIcon": {
+        "backgroundColor": "#132535",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}

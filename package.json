@@ -1,0 +1,28 @@
+{
+  "name": "jojobuilds",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/web",
+    "apps/mobile",
+    "packages/api-client"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace=@jojobuilds/web",
+    "dev:mobile": "npm run start --workspace=@jojobuilds/mobile",
+    "build:web": "npm run build --workspace=@jojobuilds/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "api:generate": "node scripts/generate-api.mjs",
+    "test:e2e": "playwright test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "openapi-typescript": "^7.13.0",
+    "typescript": "~5.9.3",
+    "prettier": "^3.8.1"
+  }
+}
