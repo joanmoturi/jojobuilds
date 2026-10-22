@@ -31,6 +31,7 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
   Overview,
   PropertiesPanel,
+  RentalsPanel,
   TenantsPanel,
   PaymentsPanel,
   MaintenancePanel,
@@ -39,6 +40,8 @@ import {
   type FormKind,
 } from "./workspace-panels";
 import { WorkspaceForm } from "./workspace-forms";
+import { FinanceForm, isFinanceForm } from "./finance-form";
+import { OwnerFinancesPanel, ProvidersPanel, RecurringChargesPanel } from "./finance-panels";
 import { ErrorBox, Field, Loading } from "./ui";
 
 export type Api = ReturnType<typeof createApi>;
@@ -46,20 +49,38 @@ export interface WorkspaceContext {
   api: Api;
   org: Organization;
   period: string;
+  rentalId: string;
   refresh: () => Promise<void>;
   openForm: (kind: FormKind) => void;
-  navigate: (tab: Tab) => void;
+  navigate: (tab: Tab, rentalId?: string) => void;
 }
 export type Tab =
-  "overview" | "properties" | "tenants" | "payments" | "maintenance" | "notifications" | "settings";
+  | "overview"
+  | "properties"
+  | "tenants"
+  | "payments"
+  | "maintenance"
+  | "providers"
+  | "bills"
+  | "owner-finances"
+  | "notifications"
+  | "settings";
 const navigation = [
   { key: "overview", label: "Overview", icon: LayoutDashboard },
   { key: "properties", label: "Properties", icon: Building2 },
   { key: "tenants", label: "Tenants", icon: Users },
   { key: "payments", label: "Payments", icon: Wallet },
   { key: "maintenance", label: "Maintenance", icon: Wrench },
+  { key: "providers", label: "Service providers", icon: Wrench },
+  { key: "bills", label: "Recurring bills", icon: Wallet },
+  { key: "owner-finances", label: "Owner finances", icon: ShieldCheck },
   { key: "notifications", label: "Notifications", icon: Bell },
 ] as const;
+const tenantLabels: Partial<Record<Tab, string>> = {
+  overview: "My home",
+  properties: "My rentals",
+  payments: "My payments",
+};
 
 export function Workspace() {
   const [client] = useState(
@@ -315,6 +336,7 @@ function AuthenticatedWorkspace({ session }: { session: Session }) {
     new Date().toLocaleDateString("en-CA", { timeZone: org.timezone }).slice(0, 7),
   );
   const [form, setForm] = useState<FormKind | null>(null);
+  const [rentalId, setRentalId] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [logoutError, setLogoutError] = useState("");
   const api = useMemo(
@@ -333,20 +355,35 @@ function AuthenticatedWorkspace({ session }: { session: Session }) {
   const refresh = async () => {
     await queryClient.invalidateQueries({ queryKey: [org.id] });
   };
-  const ctx: WorkspaceContext = { api, org, period, refresh, openForm: setForm, navigate: setTab };
   const role = org.role;
   const tenant = role === "tenant";
   const allowed = navigation.filter(
     (item) =>
       (item.key !== "overview" || tenant || canFinance(role)) &&
       (item.key !== "tenants" || canManageTenants(role) || role === "finance") &&
-      (item.key !== "payments" || canFinance(role) || tenant),
+      (item.key !== "payments" || canFinance(role) || tenant) &&
+      (item.key !== "providers" ||
+        ["owner", "manager", "finance", "caretaker", "maintenance"].includes(role)) &&
+      (item.key !== "bills" || canFinance(role) || tenant) &&
+      (item.key !== "owner-finances" || role === "owner"),
   );
   const current = allowed.find((item) => item.key === tab);
-  const title = tab === "settings" ? "Workspace settings" : (current?.label ?? "Your portfolio");
-  const navigate = (key: Tab) => {
+  const labelFor = (key: Tab, label: string) => (tenant ? tenantLabels[key] : undefined) ?? label;
+  const title =
+    tab === "settings" ? "Workspace settings" : labelFor(tab, current?.label ?? "Your workspace");
+  const navigate = (key: Tab, selectedRentalId = "") => {
     setTab(key);
+    setRentalId(selectedRentalId);
     setMenuOpen(false);
+  };
+  const ctx: WorkspaceContext = {
+    api,
+    org,
+    period,
+    rentalId,
+    refresh,
+    openForm: setForm,
+    navigate,
   };
 
   return (
@@ -368,6 +405,7 @@ function AuthenticatedWorkspace({ session }: { session: Session }) {
                 setOrgId(event.target.value);
                 setTab("properties");
                 setForm(null);
+                setRentalId("");
               }}
             >
               {session.organizations.map((o) => (
@@ -392,13 +430,7 @@ function AuthenticatedWorkspace({ session }: { session: Session }) {
               aria-current={tab === key ? "page" : undefined}
             >
               <Icon size={18} />
-              <span>
-                {tenant && key === "overview"
-                  ? "My home"
-                  : tenant && key === "payments"
-                    ? "My payments"
-                    : label}
-              </span>
+              <span>{labelFor(key, label)}</span>
               {tab === key && <i />}
             </button>
           ))}
@@ -490,7 +522,7 @@ function AuthenticatedWorkspace({ session }: { session: Session }) {
           <div className="page-heading">
             <div>
               <div className="eyebrow">
-                {tenant ? "YOUR HOME, ALL IN ONE PLACE" : "A CLEARER VIEW OF YOUR PORTFOLIO"}
+                {tenant ? "YOUR RENTALS, ALL IN ONE PLACE" : "A CLEARER VIEW OF YOUR PORTFOLIO"}
               </div>
               <h1>
                 {tab === "overview"
@@ -501,9 +533,11 @@ function AuthenticatedWorkspace({ session }: { session: Session }) {
                 <span className="heading-dot">.</span>
               </h1>
               <p>
-                {tab === "overview"
-                  ? "Here’s where things stand. Let’s keep everything moving."
-                  : "The details that keep your properties running smoothly."}
+                {tenant
+                  ? "Your rented units, rent and bills, together in one place."
+                  : tab === "overview"
+                    ? "Here’s where things stand. Let’s keep everything moving."
+                    : "The details that keep your properties running smoothly."}
               </p>
             </div>
             <div className="heading-actions">
@@ -517,18 +551,24 @@ function AuthenticatedWorkspace({ session }: { session: Session }) {
                   }}
                 />
               </label>
-              {!tenant && canFinance(role) && (
-                <button className="button primary" onClick={() => setForm("payment")}>
-                  <Plus size={17} /> Record payment
-                </button>
-              )}
+              {!tenant &&
+                canFinance(role) &&
+                !["providers", "owner-finances", "bills"].includes(tab) && (
+                  <button className="button primary" onClick={() => setForm("payment")}>
+                    <Plus size={17} /> Record payment
+                  </button>
+                )}
             </div>
           </div>
           {tab === "overview" && <Overview ctx={ctx} />}
-          {tab === "properties" && <PropertiesPanel ctx={ctx} />}
+          {tab === "properties" &&
+            (tenant ? <RentalsPanel ctx={ctx} /> : <PropertiesPanel ctx={ctx} />)}
           {tab === "tenants" && <TenantsPanel ctx={ctx} />}
           {tab === "payments" && <PaymentsPanel ctx={ctx} />}
           {tab === "maintenance" && <MaintenancePanel ctx={ctx} />}
+          {tab === "providers" && <ProvidersPanel ctx={ctx} />}
+          {tab === "bills" && <RecurringChargesPanel ctx={ctx} />}
+          {tab === "owner-finances" && role === "owner" && <OwnerFinancesPanel ctx={ctx} />}
           {tab === "notifications" && <NotificationsPanel ctx={ctx} />}
           {tab === "settings" && <SettingsPanel ctx={ctx} />}
           <footer className="content-footer">
@@ -544,7 +584,7 @@ function AuthenticatedWorkspace({ session }: { session: Session }) {
           {allowed.slice(0, 4).map(({ key, label, icon: Icon }) => (
             <button key={key} className={tab === key ? "active" : ""} onClick={() => navigate(key)}>
               <Icon size={19} />
-              <span>{label}</span>
+              <span>{labelFor(key, label)}</span>
             </button>
           ))}
           <button onClick={() => setMenuOpen(true)}>
@@ -553,14 +593,22 @@ function AuthenticatedWorkspace({ session }: { session: Session }) {
           </button>
         </nav>
       </div>
-      {form && (
-        <WorkspaceForm
-          key={typeof form === "string" ? form : form.kind + ("id" in form ? form.id : "")}
-          kind={form}
-          ctx={ctx}
-          close={() => setForm(null)}
-        />
-      )}
+      {form &&
+        (isFinanceForm(form) ? (
+          <FinanceForm
+            kind={form}
+            ctx={ctx}
+            close={() => setForm(null)}
+            key={typeof form === "string" ? form : form.kind + form.id}
+          />
+        ) : (
+          <WorkspaceForm
+            key={typeof form === "string" ? form : form.kind + ("id" in form ? form.id : "")}
+            kind={form}
+            ctx={ctx}
+            close={() => setForm(null)}
+          />
+        ))}
     </div>
   );
 }

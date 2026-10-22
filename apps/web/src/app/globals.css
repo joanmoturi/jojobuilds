@@ -995,6 +995,78 @@ td small {
   border-radius: 12px;
   overflow: hidden;
 }
+.rental-grid {
+  margin-top: 20px;
+}
+.rental-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  margin-bottom: 0;
+  padding: 22px;
+  overflow-wrap: anywhere;
+}
+.rental-card h2,
+.rental-card p {
+  margin: 0;
+}
+.rental-card h2 {
+  font-size: 22px;
+}
+.rental-card > .button {
+  margin-top: auto;
+}
+.rental-details {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  font-size: 12px;
+}
+.rental-details div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.rental-details dt {
+  color: var(--muted);
+}
+.rental-details dd {
+  margin: 0;
+  text-align: right;
+}
+.rental-filter {
+  max-width: 100%;
+  margin-bottom: 20px;
+}
+.property-card.expanded {
+  grid-column: 1 / -1;
+}
+.unit-specifications {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+.unit-spec {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px;
+  overflow-wrap: anywhere;
+}
+.unit-spec h3,
+.unit-spec h4 {
+  margin: 0;
+}
+.unit-spec p {
+  font-size: 12px;
+  line-height: 1.6;
+}
+.unit-spec h4,
+.unit-spec .toolbar-actions {
+  margin-top: 16px;
+}
 .property-art {
   height: 145px;
   background: #cdd2bf;
@@ -1362,6 +1434,28 @@ td small {
 .maintenance-card h2 {
   font-size: 18px;
   margin: 15px 0 9px;
+}
+.finance-grid {
+  margin-bottom: 20px;
+}
+.finance-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  margin-bottom: 0;
+  overflow-wrap: anywhere;
+}
+.finance-card > h2,
+.finance-card > p {
+  margin: 0;
+}
+.finance-card > .metric-icon {
+  align-self: flex-start;
+}
+.finance-intro {
+  padding: 0 21px 21px;
+  overflow-wrap: anywhere;
 }
 .maintenance-card > p {
   font-size: 11px;

@@ -136,15 +136,24 @@ def accept_membership(db: Session, action: m.ActionToken, user: m.User):
     )
     if existing:
         raise HTTPException(409, "You already belong to this organization")
+    tenant = None
+    if payload["role"] == "tenant":
+        tenant = db.scalar(
+            select(m.Tenant)
+            .where(m.Tenant.id == payload.get("tenant_id"), m.Tenant.org_id == payload["org_id"])
+            .with_for_update()
+        )
+        if not tenant or tenant.email.lower() != user.email.lower():
+            raise HTTPException(422, "This invitation no longer matches the tenant record")
+        if tenant.user_id and tenant.user_id != user.id:
+            raise HTTPException(409, "Tenant already has an account")
     member = m.Membership(org_id=payload["org_id"], user_id=user.id, role=payload["role"])
     db.add(member)
     db.flush()
-    for prop in payload.get("property_ids", []):
+    for prop in payload.get("property_ids", []) if payload["role"] != "tenant" else []:
         db.add(m.Assignment(membership_id=member.id, property_id=prop))
-    if payload.get("tenant_id"):
-        tenant = db.get(m.Tenant, payload["tenant_id"])
-        if tenant and tenant.org_id == payload["org_id"]:
-            tenant.user_id = user.id
+    if tenant:
+        tenant.user_id = user.id
     db.add(
         m.Audit(
             org_id=payload["org_id"],

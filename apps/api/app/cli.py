@@ -15,10 +15,10 @@ from zipfile import ZIP_DEFLATED, ZipFile
 from sqlalchemy import select
 
 from . import models as m
-from .auth import Context, passwords
+from .auth import Context, audit, passwords
 from .config import settings
 from .db import SessionLocal, engine
-from .ledger import bill_period, post_payment
+from .ledger import bill_period, local_today, lock_org, post_payment
 from .schemas import PaymentIn
 
 
@@ -173,6 +173,244 @@ def send_mail():
         print(f"Sent {len(messages)} queued messages")
 
 
+DEMO_STAFF_ROLES = ("manager", "agent", "caretaker", "maintenance", "finance")
+
+
+def demo_organization(db, owner_email: str, organization: str | None):
+    query = (
+        select(m.Organization)
+        .join(m.Membership)
+        .join(m.User, m.User.id == m.Membership.user_id)
+        .where(
+            m.User.email == owner_email.lower(),
+            m.Membership.role == "owner",
+            m.Membership.active.is_(True),
+            m.Organization.demo.is_(True),
+        )
+    )
+    if organization:
+        query = query.where(m.Organization.id == organization)
+    organizations = list(db.scalars(query))
+    if len(organizations) != 1:
+        raise SystemExit("Choose exactly one synthetic demo portfolio using --organization.")
+    return organizations[0]
+
+
+def demo_tenant(owner_email: str, email: str, organization: str | None):
+    with SessionLocal.begin() as db:
+        org = demo_organization(db, owner_email, organization)
+        if db.scalar(select(m.User.id).where(m.User.email == email.lower())):
+            raise SystemExit("Account already exists. Use set-password to change its password.")
+        tenant = db.scalar(
+            select(m.Tenant)
+            .join(m.Tenancy)
+            .where(
+                m.Tenant.org_id == org.id,
+                m.Tenant.user_id.is_(None),
+                m.Tenancy.status == "active",
+            )
+            .order_by(m.Tenant.name)
+        )
+        if not tenant:
+            raise SystemExit("No unlinked active tenant is available in this synthetic portfolio.")
+        user = m.User(
+            email=email.lower(),
+            name=tenant.name,
+            password_hash=passwords.hash(requested_password()),
+        )
+        db.add(user)
+        db.flush()
+        tenant.user_id = user.id
+        db.add(m.Membership(org_id=org.id, user_id=user.id, role="tenant"))
+    print(f"Tenant demo created: {email}. Sign in on the website with the password you chose.")
+
+
+def demo_staff(
+    owner_email: str, email: str, role: str, property_name: str, organization: str | None
+):
+    if role not in DEMO_STAFF_ROLES:
+        raise SystemExit("Choose a supported staff role; owner and tenant are not staff roles.")
+    with SessionLocal.begin() as db:
+        org = demo_organization(db, owner_email, organization)
+        if db.scalar(select(m.User.id).where(m.User.email == email.lower())):
+            raise SystemExit("Account already exists. Use set-password to change its password.")
+        properties = list(
+            db.scalars(
+                select(m.Property).where(
+                    m.Property.org_id == org.id,
+                    m.Property.name == property_name,
+                    m.Property.archived.is_(False),
+                )
+            )
+        )
+        if len(properties) != 1:
+            raise SystemExit(
+                "Property name must match exactly one active property in this demo portfolio."
+            )
+        prop = properties[0]
+        user = m.User(
+            email=email.lower(),
+            name=f"Demo {role.capitalize()}",
+            password_hash=passwords.hash(requested_password()),
+        )
+        db.add(user)
+        db.flush()
+        member = m.Membership(org_id=org.id, user_id=user.id, role=role)
+        db.add(member)
+        db.flush()
+        db.add(m.Assignment(membership_id=member.id, property_id=prop.id))
+    print(
+        f"Staff demo created: {email} ({role}), assigned to {property_name}. Sign in with the password you chose."
+    )
+
+
+def demo_rentals(owner_email: str, email: str, organization: str | None):
+    with SessionLocal.begin() as db:
+        org = demo_organization(db, owner_email, organization)
+        owner = db.scalar(select(m.User).where(m.User.email == owner_email.lower()))
+        member = db.scalar(
+            select(m.Membership).where(
+                m.Membership.org_id == org.id, m.Membership.user_id == owner.id
+            )
+        )
+        ctx = Context(owner, member, org)
+        lock_org(db, ctx)
+        tenant_rows = list(
+            db.scalars(
+                select(m.Tenant)
+                .join(m.User, m.User.id == m.Tenant.user_id)
+                .join(m.Membership, m.Membership.user_id == m.User.id)
+                .where(
+                    m.Tenant.org_id == org.id,
+                    m.User.email == email.lower(),
+                    m.User.active.is_(True),
+                    m.Membership.org_id == org.id,
+                    m.Membership.active.is_(True),
+                    m.Membership.role == "tenant",
+                )
+            )
+        )
+        if len(tenant_rows) != 1:
+            raise SystemExit(
+                "Choose exactly one linked tenant account in this synthetic portfolio."
+            )
+        tenant = tenant_rows[0]
+        apartments = list(
+            db.scalars(
+                select(m.Tenancy)
+                .join(m.Unit)
+                .join(m.Property)
+                .where(
+                    m.Tenancy.org_id == org.id,
+                    m.Tenancy.tenant_id == tenant.id,
+                    m.Tenancy.status == "active",
+                    m.Property.name == "Kilimani Heights",
+                )
+            )
+        )
+        if len(apartments) != 1:
+            raise SystemExit(
+                "This example needs the tenant's original active Kilimani Heights rental."
+            )
+        apartment = apartments[0]
+        unit = db.get(m.Unit, apartment.unit_id)
+        if unit.unit_type == "Residential":
+            unit.unit_type = "1-bedroom apartment"
+            audit(db, ctx, "unit.updated", unit.id, synthetic_example=True)
+        examples = [
+            (
+                "Utawala Stalls",
+                "Utawala, Nairobi",
+                "S01",
+                "Rental stall",
+                "JOJO-DEMO-STALL",
+                1500000,
+            ),
+            (
+                "Bypass Bar",
+                "Eastern Bypass, Nairobi",
+                "B01",
+                "Bar premises",
+                "JOJO-DEMO-BAR",
+                8000000,
+            ),
+        ]
+        leases = [apartment]
+        created = 0
+        first = local_today(ctx).replace(day=1)
+        for name, location, label, specification, reference, rent in examples:
+            existing = db.scalar(
+                select(m.Tenancy).where(
+                    m.Tenancy.org_id == org.id, m.Tenancy.reference == reference
+                )
+            )
+            if existing:
+                if existing.tenant_id != tenant.id:
+                    raise SystemExit(
+                        "A reserved demo rental reference belongs to another tenant; no changes saved."
+                    )
+                leases.append(existing)
+                continue
+            if db.scalar(
+                select(m.Property.id).where(m.Property.org_id == org.id, m.Property.name == name)
+            ):
+                raise SystemExit(
+                    "An example property name already exists without its demo tenancy; no changes saved."
+                )
+            prop = m.Property(
+                org_id=org.id,
+                name=name,
+                location=location,
+                county="Nairobi",
+                contact="Synthetic demo managing contact",
+            )
+            db.add(prop)
+            db.flush()
+            unit = m.Unit(
+                org_id=org.id,
+                property_id=prop.id,
+                number=label,
+                unit_type=specification,
+                usage="commercial",
+                default_rent=rent,
+            )
+            db.add(unit)
+            db.flush()
+            lease = m.Tenancy(
+                org_id=org.id,
+                tenant_id=tenant.id,
+                unit_id=unit.id,
+                reference=reference,
+                rent=rent,
+                start_date=first,
+                due_day=5,
+            )
+            db.add(lease)
+            db.flush()
+            extra_kind, extra_amount = ("garbage", 50000) if label == "S01" else ("service", 250000)
+            db.add(
+                m.RecurringCharge(
+                    org_id=org.id,
+                    tenancy_id=lease.id,
+                    kind=extra_kind,
+                    description=f"Synthetic {specification.lower()} {extra_kind}",
+                    amount=extra_amount,
+                    due_day=5,
+                    start_period=first.strftime("%Y-%m"),
+                )
+            )
+            db.flush()
+            audit(db, ctx, "property.created", prop.id, synthetic_example=True)
+            audit(db, ctx, "unit.created", unit.id, synthetic_example=True)
+            audit(db, ctx, "tenancy.created", lease.id, synthetic_example=True)
+            leases.append(lease)
+            created += 1
+        result = bill_period(db, ctx, first.strftime("%Y-%m"), leases)
+    print(
+        f"Demo rentals ready: {created} new agreements, {result['created']} new charges. Existing agreements, payments and passwords were preserved."
+    )
+
+
 def backup(destination: Path):
     if engine.dialect.name != "sqlite":
         raise SystemExit(
@@ -250,6 +488,20 @@ def main():
             sub.add_argument("--name", default="Portfolio Owner")
     commands.add_parser("send-mail")
     commands.add_parser("bill")
+    tenant_parser = commands.add_parser("demo-tenant")
+    tenant_parser.add_argument("--owner-email", required=True)
+    tenant_parser.add_argument("--email", required=True)
+    tenant_parser.add_argument("--organization")
+    rentals_parser = commands.add_parser("demo-rentals")
+    rentals_parser.add_argument("--owner-email", required=True)
+    rentals_parser.add_argument("--email", required=True)
+    rentals_parser.add_argument("--organization")
+    staff_parser = commands.add_parser("demo-staff")
+    staff_parser.add_argument("--owner-email", required=True)
+    staff_parser.add_argument("--email", required=True)
+    staff_parser.add_argument("--role", choices=DEMO_STAFF_ROLES, required=True)
+    staff_parser.add_argument("--property-name", required=True)
+    staff_parser.add_argument("--organization")
     commands.add_parser("export-openapi").add_argument("--output", required=True)
     commands.add_parser("backup").add_argument("--output", type=Path, required=True)
     restore_parser = commands.add_parser("restore")
@@ -258,6 +510,12 @@ def main():
     args = parser.parse_args()
     if args.command in ("bootstrap", "seed"):
         bootstrap(args.email, args.name, demo=args.command == "seed")
+    elif args.command == "demo-tenant":
+        demo_tenant(args.owner_email, args.email, args.organization)
+    elif args.command == "demo-staff":
+        demo_staff(args.owner_email, args.email, args.role, args.property_name, args.organization)
+    elif args.command == "demo-rentals":
+        demo_rentals(args.owner_email, args.email, args.organization)
     elif args.command == "set-password":
         password = requested_password()
         with SessionLocal.begin() as db:
@@ -290,8 +548,6 @@ def main():
                 if not owner or not owner.active:
                     continue
                 ctx = Context(db.get(m.User, owner.user_id), owner, org)
-                from .ledger import local_today
-
                 tenancies = list(db.scalars(select(m.Tenancy).where(m.Tenancy.org_id == org.id)))
                 result = bill_period(db, ctx, local_today(ctx).strftime("%Y-%m"), tenancies)
                 print(f"Organization {org.id}: {result}")

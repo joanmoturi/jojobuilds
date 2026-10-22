@@ -658,6 +658,56 @@
         }
       }
     },
+    "/api/v1/units/{unit_id}": {
+      "put": {
+        "tags": [
+          "portfolio"
+        ],
+        "summary": "Update Unit",
+        "operationId": "update_unit_api_v1_units__unit_id__put",
+        "parameters": [
+          {
+            "name": "unit_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Unit Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnitIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/tenants": {
       "get": {
         "tags": [
@@ -798,6 +848,31 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rentals": {
+      "get": {
+        "tags": [
+          "portfolio"
+        ],
+        "summary": "Rentals",
+        "operationId": "rentals_api_v1_rentals_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RentalOut"
+                  },
+                  "type": "array",
+                  "title": "Response Rentals Api V1 Rentals Get"
                 }
               }
             }
@@ -1470,6 +1545,31 @@
         }
       }
     },
+    "/api/v1/maintenance-options": {
+      "get": {
+        "tags": [
+          "operations"
+        ],
+        "summary": "Maintenance Options",
+        "operationId": "maintenance_options_api_v1_maintenance_options_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MaintenanceOptionOut"
+                  },
+                  "type": "array",
+                  "title": "Response Maintenance Options Api V1 Maintenance Options Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/maintenance/{request_id}": {
       "post": {
         "tags": [
@@ -1600,6 +1700,489 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/providers": {
+      "get": {
+        "tags": [
+          "providers and owner finances"
+        ],
+        "summary": "Providers",
+        "operationId": "providers_api_v1_providers_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ProviderOut"
+                  },
+                  "type": "array",
+                  "title": "Response Providers Api V1 Providers Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "providers and owner finances"
+        ],
+        "summary": "Create Provider",
+        "operationId": "create_provider_api_v1_providers_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProviderIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/providers/{provider_id}": {
+      "put": {
+        "tags": [
+          "providers and owner finances"
+        ],
+        "summary": "Update Provider",
+        "operationId": "update_provider_api_v1_providers__provider_id__put",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Provider Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProviderIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/payables": {
+      "get": {
+        "tags": [
+          "providers and owner finances"
+        ],
+        "summary": "Payables",
+        "operationId": "payables_api_v1_payables_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PayableOut"
+                  },
+                  "type": "array",
+                  "title": "Response Payables Api V1 Payables Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "providers and owner finances"
+        ],
+        "summary": "Create Payable",
+        "operationId": "create_payable_api_v1_payables_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PayableIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayableOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/payables/{payable_id}/payments": {
+      "post": {
+        "tags": [
+          "providers and owner finances"
+        ],
+        "summary": "Pay Payable",
+        "operationId": "pay_payable_api_v1_payables__payable_id__payments_post",
+        "parameters": [
+          {
+            "name": "payable_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Payable Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OutgoingPaymentIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayableOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/payables/{payable_id}/void": {
+      "post": {
+        "tags": [
+          "providers and owner finances"
+        ],
+        "summary": "Void Payable",
+        "operationId": "void_payable_api_v1_payables__payable_id__void_post",
+        "parameters": [
+          {
+            "name": "payable_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Payable Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Reason"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/outgoing-payments/{payment_id}/reverse": {
+      "post": {
+        "tags": [
+          "providers and owner finances"
+        ],
+        "summary": "Reverse Outgoing",
+        "operationId": "reverse_outgoing_api_v1_outgoing_payments__payment_id__reverse_post",
+        "parameters": [
+          {
+            "name": "payment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Payment Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Reason"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/recurring-charges": {
+      "get": {
+        "tags": [
+          "providers and owner finances"
+        ],
+        "summary": "Recurring Charges",
+        "operationId": "recurring_charges_api_v1_recurring_charges_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RecurringChargeOut"
+                  },
+                  "type": "array",
+                  "title": "Response Recurring Charges Api V1 Recurring Charges Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "providers and owner finances"
+        ],
+        "summary": "Create Recurring",
+        "operationId": "create_recurring_api_v1_recurring_charges_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecurringChargeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/recurring-charges/{rule_id}": {
+      "put": {
+        "tags": [
+          "providers and owner finances"
+        ],
+        "summary": "Update Recurring",
+        "operationId": "update_recurring_api_v1_recurring_charges__rule_id__put",
+        "parameters": [
+          {
+            "name": "rule_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Rule Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecurringChargeIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/owner-finances": {
+      "get": {
+        "tags": [
+          "providers and owner finances"
+        ],
+        "summary": "Owner Finances",
+        "operationId": "owner_finances_api_v1_owner_finances_get",
+        "parameters": [
+          {
+            "name": "period",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^(20\\d{2}|2100)-(0[1-9]|1[0-2])$",
+              "title": "Period"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OwnerFinanceOut"
+                }
               }
             }
           },
@@ -1747,6 +2330,7 @@
             "enum": [
               "rent",
               "water",
+              "garbage",
               "service",
               "deposit",
               "opening",
@@ -2141,6 +2725,44 @@
         ],
         "title": "MaintenanceIn"
       },
+      "MaintenanceOptionOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "tenant_name": {
+            "type": "string",
+            "title": "Tenant Name"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "unit_id": {
+            "type": "string",
+            "title": "Unit Id"
+          },
+          "property_id": {
+            "type": "string",
+            "title": "Property Id"
+          },
+          "property_name": {
+            "type": "string",
+            "title": "Property Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "tenant_name",
+          "unit",
+          "unit_id",
+          "property_id",
+          "property_name"
+        ],
+        "title": "MaintenanceOptionOut"
+      },
       "MaintenanceOut": {
         "properties": {
           "id": {
@@ -2161,6 +2783,43 @@
               }
             ],
             "title": "Tenancy Id"
+          },
+          "tenant_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenant Name"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "property_name": {
+            "type": "string",
+            "title": "Property Name"
+          },
+          "provider_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Id"
           },
           "title": {
             "type": "string",
@@ -2214,6 +2873,10 @@
           "id",
           "property_id",
           "tenancy_id",
+          "tenant_name",
+          "unit",
+          "property_name",
+          "provider_id",
           "title",
           "description",
           "category",
@@ -2252,6 +2915,17 @@
             "maxLength": 150,
             "title": "Assigned To",
             "default": ""
+          },
+          "provider_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Id"
           },
           "cost": {
             "type": "integer",
@@ -2315,6 +2989,433 @@
           "demo"
         ],
         "title": "OrganizationOut"
+      },
+      "OutgoingPaymentIn": {
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "maximum": 1000000000000.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Amount"
+          },
+          "paid_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Paid On"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "bank",
+              "mpesa",
+              "cash",
+              "cheque"
+            ],
+            "title": "Method"
+          },
+          "reference": {
+            "type": "string",
+            "maxLength": 150,
+            "title": "Reference",
+            "default": ""
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 16,
+            "title": "Idempotency Key"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "amount",
+          "paid_on",
+          "method",
+          "idempotency_key"
+        ],
+        "title": "OutgoingPaymentIn"
+      },
+      "OutgoingPaymentOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "amount": {
+            "type": "integer",
+            "title": "Amount"
+          },
+          "paid_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Paid On"
+          },
+          "method": {
+            "type": "string",
+            "title": "Method"
+          },
+          "reference": {
+            "type": "string",
+            "title": "Reference"
+          },
+          "reversed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reversed At"
+          },
+          "reversal_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reversal Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "amount",
+          "paid_on",
+          "method",
+          "reference",
+          "reversed_at",
+          "reversal_reason"
+        ],
+        "title": "OutgoingPaymentOut"
+      },
+      "OwnerFinanceOut": {
+        "properties": {
+          "period": {
+            "type": "string",
+            "title": "Period"
+          },
+          "inflows": {
+            "type": "integer",
+            "title": "Inflows"
+          },
+          "service_paid": {
+            "type": "integer",
+            "title": "Service Paid"
+          },
+          "operating_paid": {
+            "type": "integer",
+            "title": "Operating Paid"
+          },
+          "tax_paid": {
+            "type": "integer",
+            "title": "Tax Paid"
+          },
+          "loan_paid": {
+            "type": "integer",
+            "title": "Loan Paid"
+          },
+          "owner_use_paid": {
+            "type": "integer",
+            "title": "Owner Use Paid"
+          },
+          "net_movement": {
+            "type": "integer",
+            "title": "Net Movement"
+          },
+          "outstanding": {
+            "type": "integer",
+            "title": "Outstanding"
+          },
+          "overdue": {
+            "type": "integer",
+            "title": "Overdue"
+          }
+        },
+        "type": "object",
+        "required": [
+          "period",
+          "inflows",
+          "service_paid",
+          "operating_paid",
+          "tax_paid",
+          "loan_paid",
+          "owner_use_paid",
+          "net_movement",
+          "outstanding",
+          "overdue"
+        ],
+        "title": "OwnerFinanceOut"
+      },
+      "PayableIn": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "service",
+              "operating",
+              "tax",
+              "loan",
+              "owner_use"
+            ],
+            "title": "Kind"
+          },
+          "property_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Property Id"
+          },
+          "provider_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Id"
+          },
+          "maintenance_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maintenance Id"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Description"
+          },
+          "reference": {
+            "type": "string",
+            "maxLength": 150,
+            "title": "Reference",
+            "default": ""
+          },
+          "amount": {
+            "type": "integer",
+            "maximum": 1000000000000.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Amount"
+          },
+          "issued_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Issued On"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Due Date"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 16,
+            "title": "Idempotency Key"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "description",
+          "amount",
+          "issued_on",
+          "due_date",
+          "idempotency_key"
+        ],
+        "title": "PayableIn"
+      },
+      "PayableOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "service",
+              "operating",
+              "tax",
+              "loan",
+              "owner_use"
+            ],
+            "title": "Kind"
+          },
+          "property_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Property Id"
+          },
+          "property_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Property Name"
+          },
+          "provider_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Id"
+          },
+          "provider_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Name"
+          },
+          "maintenance_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maintenance Id"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "reference": {
+            "type": "string",
+            "title": "Reference"
+          },
+          "amount": {
+            "type": "integer",
+            "title": "Amount"
+          },
+          "paid": {
+            "type": "integer",
+            "title": "Paid"
+          },
+          "balance": {
+            "type": "integer",
+            "title": "Balance"
+          },
+          "issued_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Issued On"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Due Date"
+          },
+          "last_paid_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Paid On"
+          },
+          "overdue": {
+            "type": "boolean",
+            "title": "Overdue"
+          },
+          "voided_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voided At"
+          },
+          "void_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Void Reason"
+          },
+          "payments": {
+            "items": {
+              "$ref": "#/components/schemas/OutgoingPaymentOut"
+            },
+            "type": "array",
+            "title": "Payments"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "property_id",
+          "property_name",
+          "provider_id",
+          "provider_name",
+          "maintenance_id",
+          "description",
+          "reference",
+          "amount",
+          "paid",
+          "balance",
+          "issued_on",
+          "due_date",
+          "last_paid_on",
+          "overdue",
+          "voided_at",
+          "void_reason",
+          "payments"
+        ],
+        "title": "PayableOut"
       },
       "PaymentIn": {
         "properties": {
@@ -2601,6 +3702,176 @@
         ],
         "title": "PropertyOut"
       },
+      "ProviderIn": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 150,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "trade": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Trade"
+          },
+          "contact_name": {
+            "type": "string",
+            "maxLength": 120,
+            "title": "Contact Name",
+            "default": ""
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 30,
+            "title": "Phone",
+            "default": ""
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "title": "Email",
+            "default": ""
+          },
+          "address": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Address",
+            "default": ""
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 500,
+            "title": "Notes",
+            "default": ""
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "trade"
+        ],
+        "title": "ProviderIn"
+      },
+      "ProviderOut": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 150,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "trade": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Trade"
+          },
+          "contact_name": {
+            "type": "string",
+            "maxLength": 120,
+            "title": "Contact Name",
+            "default": ""
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 30,
+            "title": "Phone",
+            "default": ""
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "title": "Email",
+            "default": ""
+          },
+          "address": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Address",
+            "default": ""
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 500,
+            "title": "Notes",
+            "default": ""
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active",
+            "default": true
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "billed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Billed"
+          },
+          "paid": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paid"
+          },
+          "balance": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Balance"
+          },
+          "last_paid_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Paid On"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "trade",
+          "id",
+          "billed",
+          "paid",
+          "balance",
+          "last_paid_on"
+        ],
+        "title": "ProviderOut"
+      },
       "Reason": {
         "properties": {
           "reason": {
@@ -2689,6 +3960,147 @@
         ],
         "title": "Recover"
       },
+      "RecurringChargeIn": {
+        "properties": {
+          "tenancy_id": {
+            "type": "string",
+            "title": "Tenancy Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "water",
+              "garbage",
+              "service"
+            ],
+            "title": "Kind"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Description"
+          },
+          "amount": {
+            "type": "integer",
+            "maximum": 1000000000000.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Amount"
+          },
+          "due_day": {
+            "type": "integer",
+            "maximum": 31.0,
+            "minimum": 1.0,
+            "title": "Due Day",
+            "default": 5
+          },
+          "start_period": {
+            "type": "string",
+            "pattern": "^(20\\d{2}|2100)-(0[1-9]|1[0-2])$",
+            "title": "Start Period"
+          },
+          "end_period": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(20\\d{2}|2100)-(0[1-9]|1[0-2])$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Period"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tenancy_id",
+          "kind",
+          "description",
+          "amount",
+          "start_period"
+        ],
+        "title": "RecurringChargeIn"
+      },
+      "RecurringChargeOut": {
+        "properties": {
+          "tenancy_id": {
+            "type": "string",
+            "title": "Tenancy Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "water",
+              "garbage",
+              "service"
+            ],
+            "title": "Kind"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Description"
+          },
+          "amount": {
+            "type": "integer",
+            "maximum": 1000000000000.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Amount"
+          },
+          "due_day": {
+            "type": "integer",
+            "maximum": 31.0,
+            "minimum": 1.0,
+            "title": "Due Day",
+            "default": 5
+          },
+          "start_period": {
+            "type": "string",
+            "pattern": "^(20\\d{2}|2100)-(0[1-9]|1[0-2])$",
+            "title": "Start Period"
+          },
+          "end_period": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(20\\d{2}|2100)-(0[1-9]|1[0-2])$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Period"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active",
+            "default": true
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tenancy_id",
+          "kind",
+          "description",
+          "amount",
+          "start_period",
+          "id"
+        ],
+        "title": "RecurringChargeOut"
+      },
       "Redeem": {
         "properties": {
           "token": {
@@ -2718,6 +4130,142 @@
           "password"
         ],
         "title": "Redeem"
+      },
+      "RentalOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "unit_id": {
+            "type": "string",
+            "title": "Unit Id"
+          },
+          "tenant_id": {
+            "type": "string",
+            "title": "Tenant Id"
+          },
+          "reference": {
+            "type": "string",
+            "title": "Reference"
+          },
+          "rent": {
+            "type": "integer",
+            "title": "Rent"
+          },
+          "deposit": {
+            "type": "integer",
+            "title": "Deposit"
+          },
+          "due_day": {
+            "type": "integer",
+            "title": "Due Day"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Start Date"
+          },
+          "end_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Date"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "property_id": {
+            "type": "string",
+            "title": "Property Id"
+          },
+          "property_name": {
+            "type": "string",
+            "title": "Property Name"
+          },
+          "location": {
+            "type": "string",
+            "title": "Location"
+          },
+          "county": {
+            "type": "string",
+            "title": "County"
+          },
+          "contact": {
+            "type": "string",
+            "title": "Contact"
+          },
+          "number": {
+            "type": "string",
+            "title": "Number"
+          },
+          "building": {
+            "type": "string",
+            "title": "Building"
+          },
+          "floor": {
+            "type": "string",
+            "title": "Floor"
+          },
+          "unit_type": {
+            "type": "string",
+            "title": "Unit Type"
+          },
+          "usage": {
+            "type": "string",
+            "enum": [
+              "residential",
+              "commercial"
+            ],
+            "title": "Usage"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "outstanding": {
+            "type": "integer",
+            "title": "Outstanding"
+          },
+          "overdue": {
+            "type": "integer",
+            "title": "Overdue"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "unit_id",
+          "tenant_id",
+          "reference",
+          "rent",
+          "deposit",
+          "due_day",
+          "start_date",
+          "end_date",
+          "status",
+          "property_id",
+          "property_name",
+          "location",
+          "county",
+          "contact",
+          "number",
+          "building",
+          "floor",
+          "unit_type",
+          "usage",
+          "currency",
+          "outstanding",
+          "overdue"
+        ],
+        "title": "RentalOut"
       },
       "SessionOut": {
         "properties": {
@@ -3020,6 +4568,15 @@
             "title": "Unit Type",
             "default": "Residential"
           },
+          "usage": {
+            "type": "string",
+            "enum": [
+              "residential",
+              "commercial"
+            ],
+            "title": "Usage",
+            "default": "residential"
+          },
           "default_rent": {
             "type": "integer",
             "maximum": 1000000000000.0,
@@ -3062,6 +4619,14 @@
             "type": "string",
             "title": "Unit Type"
           },
+          "usage": {
+            "type": "string",
+            "enum": [
+              "residential",
+              "commercial"
+            ],
+            "title": "Usage"
+          },
           "default_rent": {
             "type": "integer",
             "title": "Default Rent"
@@ -3079,6 +4644,7 @@
           "building",
           "floor",
           "unit_type",
+          "usage",
           "default_rent",
           "occupied"
         ],

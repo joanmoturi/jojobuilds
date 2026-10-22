@@ -89,6 +89,9 @@ class Unit(Base):
     floor: Mapped[str] = mapped_column(String(30), default="")
     number: Mapped[str] = mapped_column(String(40))
     unit_type: Mapped[str] = mapped_column(String(60), default="Residential")
+    usage: Mapped[str] = mapped_column(
+        String(20), default="residential", server_default="residential"
+    )
     default_rent: Mapped[int] = mapped_column(BigInteger)
     archived: Mapped[bool] = mapped_column(Boolean, default=False)
 
@@ -215,6 +218,9 @@ class Maintenance(Base):
     org_id: Mapped[str] = mapped_column(ForeignKey("organizations.id"), index=True)
     property_id: Mapped[str] = mapped_column(ForeignKey("properties.id"), index=True)
     tenancy_id: Mapped[str | None] = mapped_column(ForeignKey("tenancies.id"), nullable=True)
+    provider_id: Mapped[str | None] = mapped_column(
+        ForeignKey("service_providers.id", name="fk_maintenance_provider"), nullable=True
+    )
     created_by: Mapped[str] = mapped_column(ForeignKey("users.id"))
     title: Mapped[str] = mapped_column(String(150))
     description: Mapped[str] = mapped_column(String(2000))
@@ -225,6 +231,86 @@ class Maintenance(Base):
     cost: Mapped[int] = mapped_column(BigInteger, default=0)
     updates: Mapped[list] = mapped_column(JSON, default=list)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class RecurringCharge(Base):
+    __tablename__ = "recurring_charges"
+    __table_args__ = (
+        UniqueConstraint("tenancy_id", "kind"),
+        CheckConstraint("amount > 0 AND due_day BETWEEN 1 AND 31", name="ck_recurring_amount_day"),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    org_id: Mapped[str] = mapped_column(ForeignKey("organizations.id"), index=True)
+    tenancy_id: Mapped[str] = mapped_column(ForeignKey("tenancies.id"), index=True)
+    kind: Mapped[str] = mapped_column(String(30))
+    description: Mapped[str] = mapped_column(String(200))
+    amount: Mapped[int] = mapped_column(BigInteger)
+    due_day: Mapped[int] = mapped_column(Integer, default=5)
+    start_period: Mapped[str] = mapped_column(String(7))
+    end_period: Mapped[str | None] = mapped_column(String(7), nullable=True)
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+
+
+class ServiceProvider(Base):
+    __tablename__ = "service_providers"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    org_id: Mapped[str] = mapped_column(ForeignKey("organizations.id"), index=True)
+    name: Mapped[str] = mapped_column(String(150))
+    trade: Mapped[str] = mapped_column(String(80))
+    contact_name: Mapped[str] = mapped_column(String(120), default="")
+    phone: Mapped[str] = mapped_column(String(30), default="")
+    email: Mapped[str] = mapped_column(String(254), default="")
+    address: Mapped[str] = mapped_column(String(200), default="")
+    notes: Mapped[str] = mapped_column(String(500), default="")
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+
+
+class Payable(Base):
+    __tablename__ = "payables"
+    __table_args__ = (
+        UniqueConstraint("org_id", "idempotency_key"),
+        CheckConstraint("amount > 0", name="ck_payable_positive"),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    org_id: Mapped[str] = mapped_column(ForeignKey("organizations.id"), index=True)
+    property_id: Mapped[str | None] = mapped_column(
+        ForeignKey("properties.id"), nullable=True, index=True
+    )
+    provider_id: Mapped[str | None] = mapped_column(
+        ForeignKey("service_providers.id"), nullable=True, index=True
+    )
+    maintenance_id: Mapped[str | None] = mapped_column(ForeignKey("maintenance.id"), nullable=True)
+    kind: Mapped[str] = mapped_column(String(30))
+    description: Mapped[str] = mapped_column(String(200))
+    reference: Mapped[str] = mapped_column(String(150), default="")
+    amount: Mapped[int] = mapped_column(BigInteger)
+    issued_on: Mapped[date] = mapped_column(Date)
+    due_date: Mapped[date] = mapped_column(Date)
+    idempotency_key: Mapped[str] = mapped_column(String(100))
+    created_by: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+    voided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    void_reason: Mapped[str | None] = mapped_column(String(300), nullable=True)
+
+
+class OutgoingPayment(Base):
+    __tablename__ = "outgoing_payments"
+    __table_args__ = (
+        UniqueConstraint("org_id", "idempotency_key"),
+        CheckConstraint("amount > 0", name="ck_outgoing_positive"),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    org_id: Mapped[str] = mapped_column(ForeignKey("organizations.id"), index=True)
+    payable_id: Mapped[str] = mapped_column(ForeignKey("payables.id"), index=True)
+    amount: Mapped[int] = mapped_column(BigInteger)
+    paid_on: Mapped[date] = mapped_column(Date)
+    method: Mapped[str] = mapped_column(String(30))
+    reference: Mapped[str] = mapped_column(String(150), default="")
+    idempotency_key: Mapped[str] = mapped_column(String(100))
+    created_by: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+    reversed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    reversal_reason: Mapped[str | None] = mapped_column(String(300), nullable=True)
 
 
 class Notification(Base):

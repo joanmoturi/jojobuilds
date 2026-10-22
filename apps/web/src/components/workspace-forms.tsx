@@ -19,6 +19,7 @@ import { Badge, ErrorBox, Field, Loading, Modal } from "./ui";
 const titles: Record<string, string> = {
   property: "Add a property",
   unit: "Add a unit",
+  "unit-edit": "Edit unit",
   tenant: "Register a tenant",
   tenancy: "Start a tenancy",
   payment: "Record a payment",
@@ -59,15 +60,21 @@ export function WorkspaceForm({
     canManageTenants(ctx.org.role) || canFinance(ctx.org.role) || ctx.org.role === "tenant",
   );
   const requests = useData(ctx, "maintenance", action === "maintenance-update");
+  const maintenanceOptions = useData(ctx, "maintenance-options", action === "maintenance");
+  const providers = useData(ctx, "providers", action === "maintenance-update");
   const payments = useData(ctx, "payments", action === "receipt" || action === "reverse");
   const charges = useData(ctx, "charges", action === "tenant-detail" && canFinance(ctx.org.role));
   const existingProperty = properties.data?.find((p) => p.id === id);
+  const existingUnit = units.data?.find((u) => u.id === id);
   const request = requests.data?.find((r) => r.id === id);
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { isSubmitting },
   } = useForm<Record<string, string>>();
+  const invitationRole = watch("role", "tenant");
   const [error, setError] = useState("");
   const [paymentKey] = useState(() => crypto.randomUUID());
   const [receiptPrint, setReceiptPrint] = useState(false);
@@ -79,6 +86,8 @@ export function WorkspaceForm({
     requests.error,
     payments.error,
     charges.error,
+    maintenanceOptions.error,
+    providers.error,
   ].find(Boolean);
 
   async function submit(values: Record<string, string>) {
@@ -105,15 +114,24 @@ export function WorkspaceForm({
           break;
         }
         case "unit":
-          await ctx.api.post("/units", {
-            property_id: text("property_id"),
+        case "unit-edit": {
+          const body = {
+            property_id:
+              action === "unit-edit" && existingUnit
+                ? existingUnit.property_id
+                : text("property_id"),
             number: text("number"),
             building: text("building"),
             floor: blank("floor"),
             unit_type: blank("unit_type") || "Residential",
+            usage: text("usage"),
             default_rent: parseMoney(text("amount")),
-          });
+          };
+          if (action === "unit-edit")
+            await ctx.api.request(`/units/${id}`, { method: "PUT", body: JSON.stringify(body) });
+          else await ctx.api.post("/units", body);
           break;
+        }
         case "tenant":
           await ctx.api.post("/tenants", {
             name: text("name"),
@@ -168,8 +186,9 @@ export function WorkspaceForm({
           await ctx.api.post("/invitations", {
             email: text("email"),
             role: text("role"),
-            tenant_id: blank("tenant_id") || null,
-            property_ids: blank("property_id") ? [blank("property_id")] : [],
+            tenant_id: values.role === "tenant" ? text("tenant_id") : null,
+            property_ids:
+              values.role !== "tenant" && blank("property_id") ? [blank("property_id")] : [],
           });
           break;
         case "maintenance":
@@ -187,6 +206,7 @@ export function WorkspaceForm({
             status: text("status"),
             note: text("note"),
             assigned_to: blank("assigned_to"),
+            provider_id: blank("provider_id") || null,
             cost: parseOptionalMoney(blank("cost")),
           });
           break;
@@ -234,9 +254,22 @@ export function WorkspaceForm({
     defaultValue = "",
     required = true,
   ) {
+    const registration = register(name);
     return (
       <Field label={label}>
-        <select {...register(name)} defaultValue={defaultValue} required={required}>
+        <select
+          {...registration}
+          defaultValue={defaultValue}
+          required={required}
+          onChange={(event) => {
+            void registration.onChange(event);
+            if (name === "property_id" && action === "maintenance") setValue("tenancy_id", "");
+            if (name === "role" && action === "invite") {
+              setValue("tenant_id", "");
+              setValue("property_id", "");
+            }
+          }}
+        >
           <option value="">Choose...</option>
           {options.map((option) => (
             <option key={option.id} value={option.id}>
@@ -417,6 +450,12 @@ export function WorkspaceForm({
     <Modal title={titles[action]} close={close}>
       {resourceError ? (
         <ErrorBox message={resourceError.message} />
+      ) : action === "unit-edit" && units.data && !existingUnit ? (
+        <ErrorBox message="This unit is no longer available. Refresh and select it again." />
+      ) : (action === "unit-edit" && !units.data) ||
+        (action === "maintenance" && !maintenanceOptions.data) ||
+        (action === "maintenance-update" && (!requests.data || !providers.data)) ? (
+        <Loading />
       ) : (
         <form onSubmit={handleSubmit(submit)}>
           <div className="form-body">
@@ -446,18 +485,63 @@ export function WorkspaceForm({
                   )}
               </>
             )}
-            {action === "unit" && (
+            {(action === "unit" || action === "unit-edit") && (
               <>
-                {select("property_id", "Property", propertyOptions)}
+                {action === "unit" && select("property_id", "Property", propertyOptions, id)}
+                {select(
+                  "usage",
+                  "Unit use",
+                  [
+                    { id: "residential", label: "Residential" },
+                    { id: "commercial", label: "Commercial" },
+                  ],
+                  action === "unit-edit" ? existingUnit?.usage : "residential",
+                )}
                 <div className="form-grid">
-                  {input("building", "Building / block", "text", "Main")}
-                  {input("number", "Unit number")}
+                  {input(
+                    "building",
+                    "Building / block",
+                    "text",
+                    action === "unit-edit" ? existingUnit?.building : "Main",
+                  )}
+                  {input(
+                    "number",
+                    "Unit label",
+                    "text",
+                    action === "unit-edit" ? existingUnit?.number : "",
+                  )}
                 </div>
                 <div className="form-grid">
-                  {input("floor", "Floor", "text", "", false)}
-                  {input("unit_type", "Unit type", "text", "Residential")}
+                  {input(
+                    "floor",
+                    "Floor",
+                    "text",
+                    action === "unit-edit" ? existingUnit?.floor : "",
+                    false,
+                  )}
+                  {input(
+                    "unit_type",
+                    "Unit specification",
+                    "text",
+                    action === "unit-edit" ? existingUnit?.unit_type : "",
+                  )}
                 </div>
-                {input("amount", `Default monthly rent (${ctx.org.currency})`, "number")}
+                <p className="muted">
+                  For example: label A01, Stall S12 or Bar B01; specification 1-bedroom apartment,
+                  rental stall, office or bar premises.
+                </p>
+                {input(
+                  "amount",
+                  `Default monthly rent (${ctx.org.currency})`,
+                  "number",
+                  action === "unit-edit" && existingUnit
+                    ? (existingUnit.default_rent / 100).toFixed(2)
+                    : "",
+                )}
+                <p className="muted">
+                  Default rent is a guide for new agreements. Editing this unit does not change any
+                  tenant&apos;s agreed rent or existing bills.
+                </p>
               </>
             )}
             {action === "tenant" && (
@@ -488,10 +572,18 @@ export function WorkspaceForm({
                       id: u.id,
                       label: `${properties.data?.find((p) => p.id === u.property_id)?.name ?? ""} · ${u.building} ${u.number}`,
                     })) ?? [],
+                  id,
                 )}
                 {input("reference", "Unique payment reference (letters, numbers, hyphens)")}
                 <div className="form-grid">
-                  {input("amount", `Agreed monthly rent (${ctx.org.currency})`, "number")}
+                  {input(
+                    "amount",
+                    `Agreed monthly rent (${ctx.org.currency})`,
+                    "number",
+                    action === "tenancy" && existingUnit
+                      ? (existingUnit.default_rent / 100).toFixed(2)
+                      : "",
+                  )}
                   {input("deposit", "Agreed deposit", "number", "0", false)}
                 </div>
                 <div className="form-grid">
@@ -506,7 +598,7 @@ export function WorkspaceForm({
               </>
             )}
             {(action === "payment" || action === "charge") &&
-              select("tenancy_id", "Tenancy", tenancyOptions)}
+              select("tenancy_id", "Tenancy", tenancyOptions, action === "charge" ? id : "")}
             {action === "payment" && (
               <>
                 {input("amount", `Amount received (${ctx.org.currency})`, "number")}
@@ -545,10 +637,12 @@ export function WorkspaceForm({
                 {select(
                   "kind",
                   "Charge type",
-                  ["rent", "water", "service", "deposit", "opening", "adjustment"].map((value) => ({
-                    id: value,
-                    label: value,
-                  })),
+                  ["rent", "water", "garbage", "service", "deposit", "opening", "adjustment"].map(
+                    (value) => ({
+                      id: value,
+                      label: value,
+                    }),
+                  ),
                   "water",
                 )}
                 {input("description", "Description")}
@@ -592,23 +686,28 @@ export function WorkspaceForm({
                   ),
                   "tenant",
                 )}
-                {select(
-                  "tenant_id",
-                  "Existing tenant (required for tenant role)",
-                  tenants.data?.map((p) => ({ id: p.id, label: `${p.name} · ${p.email}` })) ?? [],
-                  "",
-                  false,
-                )}
-                {select(
-                  "property_id",
-                  "Property assignment (staff only)",
-                  propertyOptions,
-                  "",
-                  false,
-                )}
+                {invitationRole === "tenant"
+                  ? select(
+                      "tenant_id",
+                      "Existing tenant",
+                      tenants.data?.map((p) => ({ id: p.id, label: `${p.name} · ${p.email}` })) ??
+                        [],
+                      "",
+                      true,
+                    )
+                  : select(
+                      "property_id",
+                      "Property assignment (optional)",
+                      propertyOptions,
+                      "",
+                      false,
+                    )}
                 <p className="muted">
                   An invitation is queued in the mail outbox. Run the email worker with SMTP
-                  configured to deliver it. Staff have no property access without an assignment.
+                  configured to deliver it.
+                  {invitationRole === "tenant"
+                    ? " Use the selected tenant's email. Access follows their own tenancy; no staff property assignment is needed."
+                    : " Staff only see assigned properties. Leaving the assignment blank gives no property access."}
                 </p>
               </>
             )}
@@ -619,8 +718,16 @@ export function WorkspaceForm({
                   "tenancy_id",
                   ctx.org.role === "tenant"
                     ? "Your tenancy"
-                    : "Tenancy (optional for common areas)",
-                  tenancyOptions,
+                    : "Tenant / unit (optional for common areas)",
+                  maintenanceOptions.data
+                    ?.filter(
+                      (option) =>
+                        !watch("property_id") || option.property_id === watch("property_id"),
+                    )
+                    .map((option) => ({
+                      id: option.id,
+                      label: `${option.tenant_name} · ${option.property_name} · Unit ${option.unit}`,
+                    })) ?? [],
                   "",
                   ctx.org.role === "tenant",
                 )}
@@ -645,6 +752,18 @@ export function WorkspaceForm({
             {action === "maintenance-update" && (
               <>
                 {select(
+                  "provider_id",
+                  "Registered service provider (optional)",
+                  providers.data
+                    ?.filter((provider) => provider.active || provider.id === request?.provider_id)
+                    .map((provider) => ({
+                      id: provider.id,
+                      label: `${provider.name} · ${provider.trade}`,
+                    })) ?? [],
+                  request?.provider_id ?? "",
+                  false,
+                )}
+                {select(
                   "status",
                   "Status",
                   [
@@ -660,7 +779,7 @@ export function WorkspaceForm({
                 )}
                 {input(
                   "assigned_to",
-                  "Assigned worker / service provider",
+                  "Other worker name (if no registered provider)",
                   "text",
                   request?.assigned_to ?? "",
                   false,
@@ -675,7 +794,8 @@ export function WorkspaceForm({
                 )}
                 <p className="muted">
                   Only valid workflow transitions are accepted by the server. Start by acknowledging
-                  or assigning a submitted request.
+                  or assigning a submitted request. Recorded cost is an estimate/reference, not an
+                  outgoing payment. Record a provider bill separately.
                 </p>
               </>
             )}

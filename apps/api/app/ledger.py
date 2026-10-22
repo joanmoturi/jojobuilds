@@ -142,30 +142,41 @@ def bill_period(db: Session, ctx: Context, period: str, tenancies: list[m.Tenanc
         if tenancy.start_date > first or (tenancy.end_date and tenancy.end_date < first):
             skipped += 1
             continue
-        existing = db.scalar(
-            select(m.Charge).where(
-                m.Charge.tenancy_id == tenancy.id,
-                m.Charge.period == period,
-                m.Charge.kind == "rent",
+        components = [("rent", f"Rent for {period}", tenancy.rent, tenancy.due_day)]
+        rules = db.scalars(
+            select(m.RecurringCharge).where(
+                m.RecurringCharge.tenancy_id == tenancy.id,
+                m.RecurringCharge.active.is_(True),
+                m.RecurringCharge.start_period <= period,
+                (m.RecurringCharge.end_period.is_(None)) | (m.RecurringCharge.end_period >= period),
             )
         )
-        if existing:
-            continue
-        charge = m.Charge(
-            org_id=ctx.org.id,
-            tenancy_id=tenancy.id,
-            period=period,
-            kind="rent",
-            description=f"Rent for {period}",
-            amount=tenancy.rent,
-            currency=ctx.org.currency,
-            due_date=date(year, month, min(tenancy.due_day, last_day)),
-        )
-        db.add(charge)
-        db.flush()
-        allocate_credit(db, tenancy.id)
-        audit(db, ctx, "charge.created", charge.id, amount=charge.amount)
-        created += 1
+        components.extend((r.kind, r.description, r.amount, r.due_day) for r in rules)
+        for kind, description, amount, due_day in components:
+            existing = db.scalar(
+                select(m.Charge).where(
+                    m.Charge.tenancy_id == tenancy.id,
+                    m.Charge.period == period,
+                    m.Charge.kind == kind,
+                )
+            )
+            if existing:
+                continue
+            charge = m.Charge(
+                org_id=ctx.org.id,
+                tenancy_id=tenancy.id,
+                period=period,
+                kind=kind,
+                description=description,
+                amount=amount,
+                currency=ctx.org.currency,
+                due_date=date(year, month, min(due_day, last_day)),
+            )
+            db.add(charge)
+            db.flush()
+            allocate_credit(db, tenancy.id)
+            audit(db, ctx, "charge.created", charge.id, amount=charge.amount)
+            created += 1
     return {"created": created, "skipped_partial_periods": skipped}
 
 

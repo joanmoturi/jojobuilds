@@ -5,6 +5,8 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 
 Role = Literal["owner", "manager", "agent", "caretaker", "maintenance", "finance", "tenant"]
 Money = Annotated[int, Field(strict=True, gt=0, le=1_000_000_000_000)]
+Period = Annotated[str, Field(pattern=r"^(20\d{2}|2100)-(0[1-9]|1[0-2])$")]
+PayableKind = Literal["service", "operating", "tax", "loan", "owner_use"]
 
 
 class Input(BaseModel):
@@ -32,6 +34,17 @@ class Invite(Input):
     property_ids: list[str] = Field(default_factory=list, max_length=200)
     tenant_id: str | None = None
 
+    @model_validator(mode="after")
+    def role_fields(self):
+        if self.role == "tenant":
+            if not self.tenant_id:
+                raise ValueError("Select an existing tenant")
+            if self.property_ids:
+                raise ValueError("Tenant access follows their own tenancy, not staff assignments")
+        elif self.tenant_id:
+            raise ValueError("A tenant record is only applicable to the tenant role")
+        return self
+
 
 class PropertyIn(Input):
     name: str = Field(min_length=1, max_length=150)
@@ -47,6 +60,7 @@ class UnitIn(Input):
     building: str = Field(default="Main", min_length=1, max_length=80)
     floor: str = Field(default="", max_length=30)
     unit_type: str = Field(default="Residential", max_length=60)
+    usage: Literal["residential", "commercial"] = "residential"
     default_rent: Money
 
 
@@ -86,7 +100,7 @@ class Bill(Input):
 class ChargeIn(Input):
     tenancy_id: str
     period: str = Field(pattern=r"^\d{4}-(0[1-9]|1[0-2])$")
-    kind: Literal["rent", "water", "service", "deposit", "opening", "adjustment"]
+    kind: Literal["rent", "water", "garbage", "service", "deposit", "opening", "adjustment"]
     description: str = Field(min_length=1, max_length=200)
     amount: Money
     due_date: date
@@ -133,6 +147,7 @@ class MaintenanceUpdate(Input):
     ]
     note: str = Field(min_length=3, max_length=1000)
     assigned_to: str = Field(default="", max_length=150)
+    provider_id: str | None = None
     cost: int = Field(default=0, ge=0, le=1_000_000_000)
 
 
@@ -193,6 +208,7 @@ class UnitOut(BaseModel):
     building: str
     floor: str
     unit_type: str
+    usage: Literal["residential", "commercial"]
     default_rent: int
     occupied: bool
 
@@ -217,6 +233,22 @@ class TenancyOut(BaseModel):
     start_date: date
     end_date: date | None
     status: str
+
+
+class RentalOut(TenancyOut):
+    property_id: str
+    property_name: str
+    location: str
+    county: str
+    contact: str
+    number: str
+    building: str
+    floor: str
+    unit_type: str
+    usage: Literal["residential", "commercial"]
+    currency: str
+    outstanding: int
+    overdue: int
 
 
 class ChargeOut(BaseModel):
@@ -285,6 +317,10 @@ class MaintenanceOut(BaseModel):
     id: str
     property_id: str
     tenancy_id: str | None
+    tenant_name: str | None
+    unit: str | None
+    property_name: str
+    provider_id: str | None
     title: str
     description: str
     category: str
@@ -294,3 +330,128 @@ class MaintenanceOut(BaseModel):
     cost: int | None
     updates: list[UpdateOut]
     created_at: str
+
+
+class MaintenanceOptionOut(BaseModel):
+    id: str
+    tenant_name: str
+    unit: str
+    unit_id: str
+    property_id: str
+    property_name: str
+
+
+class RecurringChargeIn(Input):
+    tenancy_id: str
+    kind: Literal["water", "garbage", "service"]
+    description: str = Field(min_length=1, max_length=200)
+    amount: Money
+    due_day: int = Field(default=5, ge=1, le=31)
+    start_period: Period
+    end_period: Period | None = None
+    active: bool = True
+
+    @model_validator(mode="after")
+    def period_order(self):
+        if self.end_period and self.end_period < self.start_period:
+            raise ValueError("End period must not precede start period")
+        return self
+
+
+class RecurringChargeOut(RecurringChargeIn):
+    id: str
+
+
+class ProviderIn(Input):
+    name: str = Field(min_length=1, max_length=150)
+    trade: str = Field(min_length=1, max_length=80)
+    contact_name: str = Field(default="", max_length=120)
+    phone: str = Field(default="", max_length=30)
+    email: str = Field(default="", max_length=254)
+    address: str = Field(default="", max_length=200)
+    notes: str = Field(default="", max_length=500)
+    active: bool = True
+
+
+class ProviderOut(ProviderIn):
+    id: str
+    billed: int | None
+    paid: int | None
+    balance: int | None
+    last_paid_on: date | None
+
+
+class PayableIn(Input):
+    kind: PayableKind
+    property_id: str | None = None
+    provider_id: str | None = None
+    maintenance_id: str | None = None
+    description: str = Field(min_length=1, max_length=200)
+    reference: str = Field(default="", max_length=150)
+    amount: Money
+    issued_on: date
+    due_date: date
+    idempotency_key: str = Field(min_length=16, max_length=100)
+
+    @model_validator(mode="after")
+    def relationships(self):
+        if self.kind in ("service", "operating") and not self.property_id:
+            raise ValueError("Property costs require a property")
+        if self.kind == "service" and not self.provider_id:
+            raise ValueError("A service bill requires a provider")
+        if self.kind != "service" and (self.provider_id or self.maintenance_id):
+            raise ValueError("Only service bills can link a provider or maintenance job")
+        return self
+
+
+class OutgoingPaymentIn(Input):
+    amount: Money
+    paid_on: date
+    method: Literal["bank", "mpesa", "cash", "cheque"]
+    reference: str = Field(default="", max_length=150)
+    idempotency_key: str = Field(min_length=16, max_length=100)
+
+
+class OutgoingPaymentOut(BaseModel):
+    id: str
+    amount: int
+    paid_on: date
+    method: str
+    reference: str
+    reversed_at: str | None
+    reversal_reason: str | None
+
+
+class PayableOut(BaseModel):
+    id: str
+    kind: PayableKind
+    property_id: str | None
+    property_name: str | None
+    provider_id: str | None
+    provider_name: str | None
+    maintenance_id: str | None
+    description: str
+    reference: str
+    amount: int
+    paid: int
+    balance: int
+    issued_on: date
+    due_date: date
+    last_paid_on: date | None
+    overdue: bool
+    voided_at: str | None
+    void_reason: str | None
+    payments: list[OutgoingPaymentOut]
+
+
+class OwnerFinanceOut(BaseModel):
+    period: str
+    inflows: int
+    service_paid: int
+    operating_paid: int
+    tax_paid: int
+    loan_paid: int
+    owner_use_paid: int
+    net_movement: int
+    outstanding: int
+    overdue: int

@@ -14,6 +14,12 @@ $python = Join-Path (Get-Location) '.venv\Scripts\python.exe'
 if ($LASTEXITCODE -ne 0) { throw 'Test migration failed' }
 & $python -m app.cli seed --email owner@example.com --name 'Demo Owner'
 if ($LASTEXITCODE -ne 0) { throw 'Test seed failed' }
+& $python -m app.cli demo-tenant --owner-email owner@example.com --email tenant-demo@example.com
+if ($LASTEXITCODE -ne 0) { throw 'Test tenant setup failed' }
+& $python -m app.cli demo-rentals --owner-email owner@example.com --email tenant-demo@example.com
+if ($LASTEXITCODE -ne 0) { throw 'Test rental examples failed' }
+& $python -m app.cli demo-staff --owner-email owner@example.com --email manager-demo@example.com --role manager --property-name 'Kilimani Heights'
+if ($LASTEXITCODE -ne 0) { throw 'Test staff setup failed' }
 Remove-Item Env:\JOJOBUILDS_BOOTSTRAP_PASSWORD
 & $python -m uvicorn app.main:app --host 127.0.0.1 --port 8011
 exit $LASTEXITCODE

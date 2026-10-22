@@ -6,11 +6,18 @@ npm run test --workspace=@jojobuilds/mobile
 npm run export:android --workspace=@jojobuilds/mobile
 ```
 
-Four Jest + React Native Testing Library tests exercise disabled submit, retry
+Seven Jest + React Native Testing Library tests exercise disabled submit, retry
 interaction, non-color status labeling and session restoration stability across
 organization switches. Strict TypeScript, ESLint and Android Metro/Hermes export
 passed. Export validates imports and bundles the app; it does not prove device
 behavior or generate an APK.
+
+The expansion adds checks that maintenance staff do not load provider bill
+amounts, direct owner-finance routes are denied for non-owners, and outgoing
+payment retries preserve their key and exact integer minor-unit payload.
+Physical-device gates also include provider contacts/assignment, partial
+outgoing payments/reversals, recurring/variable charges, owner-private screens
+and keyboard handling on the added native forms.
 
 Original JOJOBUILDS PNG icon assets match the website's monogram. On Windows,
 regenerate them with `.\scripts\Generate-Icons.ps1` from the repository root.

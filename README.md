@@ -64,12 +64,20 @@ running, and restart them after a PC reboot; they are not Windows startup servic
 - Properties, buildings/units, tenants, tenancy history and move-out.
 - Monthly charges, partial payments, oldest-charge allocation, tenant credit,
   payment reversal, CSV ledger export and printable payment acknowledgements.
+- Fixed recurring water/garbage/service charges and manually entered variable bills.
+- Service-provider contacts, maintenance assignment, supplier bills, partial
+  outgoing payments, last-payment dates, reversals and unpaid-bill voids.
+- Owner-private manual tax/loan obligations, personal-use spending and monthly
+  recorded cash movement. These are not automatic tax calculations or bank balances.
 - CSV/XLSX column mapping, preview, rejected-row reporting, import history,
   conservative duplicate review and explicit payment confirmation.
 - Maintenance requests, validated status updates, costs, protected file API,
   in-app notifications and audit history.
 - Android overview, property/unit browsing, tenant search, manual payment entry,
   exact-reference reconciliation review, maintenance and notifications.
+- Android **More** includes provider bills, recurring/variable tenant bills and
+  owner-only finances. A synthetic tenant website login can be created with
+  `demo-tenant`; see the [user guide](docs/USER_GUIDE.md#try-the-tenant-website-locally).
 - PostgreSQL Compose configuration; explicit SQLite mode for local use without Docker.
 
 ## Not the complete commercial product

@@ -12,6 +12,7 @@ from .routes_auth import router as auth_router
 from .routes_core import router as core_router
 from .routes_finance import router as finance_router
 from .routes_operations import router as operations_router
+from .routes_payables import router as payables_router
 
 app = FastAPI(
     title="JOJOBUILDS API",
@@ -71,3 +72,4 @@ app.include_router(auth_router)
 app.include_router(core_router)
 app.include_router(finance_router)
 app.include_router(operations_router)
+app.include_router(payables_router)

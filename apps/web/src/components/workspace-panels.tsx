@@ -8,6 +8,7 @@ import {
   money,
   type Maintenance,
   type Queries,
+  type Rental,
 } from "@jojobuilds/api-client";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -32,6 +33,7 @@ import {
   RefreshCw,
   Search,
   ShieldCheck,
+  Store,
   Upload,
   Wrench,
 } from "lucide-react";
@@ -49,14 +51,33 @@ export type FormKind =
   | "import"
   | "invite"
   | "maintenance"
+  | "provider"
+  | "payable"
+  | "owner-obligation"
+  | "recurring-charge"
   | {
       kind:
         | "maintenance-update"
         | "reverse"
         | "tenant-detail"
         | "property-edit"
+        | "unit-edit"
+        | "unit"
+        | "tenancy"
+        | "charge"
         | "end-tenancy"
         | "receipt";
+      id: string;
+    }
+  | {
+      kind:
+        | "provider-edit"
+        | "provider-bill"
+        | "outgoing-payment"
+        | "outgoing-reverse"
+        | "payable-void"
+        | "recurring-charge"
+        | "recurring-edit";
       id: string;
     };
 
@@ -73,6 +94,8 @@ export function useData<K extends keyof Queries>(
 }
 
 export function Overview({ ctx }: { ctx: WorkspaceContext }) {
+  const tenant = ctx.org.role === "tenant";
+  const rentals = useData(ctx, "rentals", tenant);
   const summary = useQuery({
     queryKey: [ctx.org.id, "dashboard", ctx.period],
     queryFn: () => ctx.api.dashboard(ctx.period),
@@ -89,6 +112,7 @@ export function Overview({ ctx }: { ctx: WorkspaceContext }) {
     charges.error,
     tenants.error,
     tenancies.error,
+    rentals.error,
   ].find(Boolean);
   if (firstError) return <ErrorBox message={firstError.message} retry={() => void ctx.refresh()} />;
   if (
@@ -97,17 +121,20 @@ export function Overview({ ctx }: { ctx: WorkspaceContext }) {
     !payments.data ||
     !charges.data ||
     !tenants.data ||
-    !tenancies.data
+    !tenancies.data ||
+    (tenant && !rentals.data)
   )
     return <Loading />;
   const s = summary.data;
   const collection = s.billed ? Math.round((s.allocated / s.billed) * 100) : 0;
   const occupancy = s.units ? Math.round((s.occupied / s.units) * 100) : 0;
-  const tenant = ctx.org.role === "tenant";
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: ctx.org.timezone });
+  const currentRentals = rentals.data?.filter((r) => rentalStatus(r, today) === "Active") ?? [];
   const arrears = tenancies.data
     .map((t) => ({
       tenancy: t,
       tenant: tenants.data.find((person) => person.id === t.tenant_id),
+      rental: rentals.data?.find((r) => r.id === t.id),
       balance: charges.data
         .filter((c) => c.tenancy_id === t.id && c.overdue && c.kind !== "deposit")
         .reduce((sum, c) => sum + c.balance, 0),
@@ -145,14 +172,27 @@ export function Overview({ ctx }: { ctx: WorkspaceContext }) {
           <span className="metric-icon">
             <Home size={21} />
           </span>
-          <span className="metric-label">{tenant ? "My tenancies" : "Portfolio occupancy"}</span>
-          <strong>{tenant ? s.occupied : `${occupancy}%`}</strong>
-          <p>
-            {s.occupied} occupied <span>of {s.units} units</span>
-          </p>
-          <div className="mini-progress">
-            <span style={{ width: `${occupancy}%` }} />
-          </div>
+          <span className="metric-label">
+            {tenant ? "My current rentals" : "Portfolio occupancy"}
+          </span>
+          <strong>{tenant ? currentRentals.length : `${occupancy}%`}</strong>
+          {tenant ? (
+            <>
+              <p>Residential and commercial units you rent</p>
+              <button className="inline-link" onClick={() => ctx.navigate("properties")}>
+                View my rentals <ArrowUpRight size={15} />
+              </button>
+            </>
+          ) : (
+            <>
+              <p>
+                {s.occupied} occupied <span>of {s.units} units</span>
+              </p>
+              <div className="mini-progress">
+                <span style={{ width: `${occupancy}%` }} />
+              </div>
+            </>
+          )}
         </section>
         <section className="metric-card">
           <span className="metric-icon amber">
@@ -196,15 +236,42 @@ export function Overview({ ctx }: { ctx: WorkspaceContext }) {
       <div className="two-columns">
         <section className="surface">
           <SectionHead
-            title={tenant ? "My property" : "Your properties"}
-            label="THE BIG PICTURE"
+            title={tenant ? "My rentals" : "Your properties"}
+            label={tenant ? "THE PLACES YOU RENT" : "THE BIG PICTURE"}
             action={
               <button className="inline-link" onClick={() => ctx.navigate("properties")}>
                 View all <ArrowRight size={14} />
               </button>
             }
           />
-          {!properties.data.length ? (
+          {tenant ? (
+            !currentRentals.length ? (
+              <Empty title="No current rentals">
+                Your linked rentals and previous agreements appear in My rentals.
+              </Empty>
+            ) : (
+              currentRentals.slice(0, 4).map((r) => (
+                <div className="property-row" key={r.id}>
+                  <div className="property-thumb thumb-0">
+                    <Home size={25} />
+                  </div>
+                  <div className="row-grow">
+                    <strong>
+                      {r.unit_type} · Unit {r.number}
+                    </strong>
+                    <span>{r.property_name}</span>
+                    <small>{r.reference}</small>
+                  </div>
+                  <div className="row-end">
+                    <strong>{money(r.rent, r.currency)} / month</strong>
+                    <button className="inline-link" onClick={() => ctx.navigate("payments", r.id)}>
+                      Rent & bills <ArrowRight size={14} />
+                    </button>
+                  </div>
+                </div>
+              ))
+            )
+          ) : !properties.data.length ? (
             <Empty title="Room for your first property">
               Add your property, then units and tenancies.
             </Empty>
@@ -242,7 +309,11 @@ export function Overview({ ctx }: { ctx: WorkspaceContext }) {
           <SectionHead
             title="A little attention needed"
             label="ARREARS AT A GLANCE"
-            action={<Badge tone="red">{arrears.length} accounts</Badge>}
+            action={
+              <Badge tone="red">
+                {arrears.length} {tenant ? "rentals" : "accounts"}
+              </Badge>
+            }
           />
           {!arrears.length ? (
             <Empty title="All clear here">No overdue charges in the records you can access.</Empty>
@@ -251,7 +322,11 @@ export function Overview({ ctx }: { ctx: WorkspaceContext }) {
               <div className="arrears-row" key={row.tenancy.id}>
                 <span className="avatar warm">{row.tenant?.name.slice(0, 2).toUpperCase()}</span>
                 <div className="row-grow">
-                  <strong>{row.tenant?.name ?? row.tenancy.reference}</strong>
+                  <strong>
+                    {tenant && row.rental
+                      ? rentalLabel(row.rental)
+                      : (row.tenant?.name ?? row.tenancy.reference)}
+                  </strong>
                   <small>{row.tenancy.reference}</small>
                 </div>
                 <div className="row-end">
@@ -297,18 +372,32 @@ export function Overview({ ctx }: { ctx: WorkspaceContext }) {
 }
 
 export function PropertiesPanel({ ctx }: { ctx: WorkspaceContext }) {
+  const finance = canFinance(ctx.org.role);
+  const readLeases = finance || canManageTenants(ctx.org.role);
   const properties = useData(ctx, "properties");
   const units = useData(ctx, "units");
+  const occupants = useData(ctx, "maintenance-options");
+  const tenancies = useData(ctx, "tenancies", readLeases);
+  const charges = useData(ctx, "charges", finance);
+  const rules = useData(ctx, "recurring-charges", finance);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState("");
-  if (properties.error || units.error)
-    return (
-      <ErrorBox
-        message={(properties.error ?? units.error)!.message}
-        retry={() => void ctx.refresh()}
-      />
-    );
-  if (!properties.data || !units.data) return <Loading />;
+  const error =
+    properties.error ||
+    units.error ||
+    occupants.error ||
+    tenancies.error ||
+    charges.error ||
+    rules.error;
+  if (error) return <ErrorBox message={error.message} retry={() => void ctx.refresh()} />;
+  if (
+    !properties.data ||
+    !units.data ||
+    !occupants.data ||
+    (readLeases && !tenancies.data) ||
+    (finance && (!charges.data || !rules.data))
+  )
+    return <Loading />;
   const filtered = properties.data.filter((p) =>
     `${p.name} ${p.location}`.toLowerCase().includes(search.toLowerCase()),
   );
@@ -346,7 +435,7 @@ export function PropertiesPanel({ ctx }: { ctx: WorkspaceContext }) {
       ) : (
         <div className="property-grid">
           {filtered.map((p, index) => (
-            <article className="property-card" key={p.id}>
+            <article className={`property-card ${selected === p.id ? "expanded" : ""}`} key={p.id}>
               <div className={`property-art art-${index % 3}`} aria-hidden="true">
                 <div className="building-shape">
                   <i />
@@ -380,7 +469,15 @@ export function PropertiesPanel({ ctx }: { ctx: WorkspaceContext }) {
                   {p.location}
                 </p>
                 <div className="property-meta">
-                  <span>Residential portfolio</span>
+                  <span>
+                    {units.data.some((u) => u.property_id === p.id && u.usage === "commercial")
+                      ? units.data.some((u) => u.property_id === p.id && u.usage === "residential")
+                        ? "Residential & commercial"
+                        : "Commercial units"
+                      : p.units
+                        ? "Residential units"
+                        : "No units yet"}
+                  </span>
                   <span>{p.units} units</span>
                 </div>
                 {p.billed !== null && (
@@ -407,21 +504,143 @@ export function PropertiesPanel({ ctx }: { ctx: WorkspaceContext }) {
                   {selected === p.id ? "Hide units" : "View units"} <ArrowUpRight size={15} />
                 </button>
                 {selected === p.id && (
-                  <div className="unit-list">
-                    {units.data
-                      .filter((u) => u.property_id === p.id)
-                      .map((u) => (
-                        <div key={u.id}>
-                          <span>
-                            {u.building} · {u.number}
-                          </span>
-                          <Badge tone={u.occupied ? "green" : "neutral"}>
-                            {u.occupied ? "Occupied" : "Vacant"}
-                          </Badge>
-                        </div>
-                      ))}
+                  <>
+                    <div className="unit-specifications">
+                      {units.data
+                        .filter((u) => u.property_id === p.id)
+                        .map((u) => {
+                          const occupant = occupants.data.find((o) => o.unit_id === u.id);
+                          const lease = tenancies.data?.find((t) => t.id === occupant?.id);
+                          const extras =
+                            charges.data?.filter(
+                              (c) =>
+                                c.tenancy_id === occupant?.id &&
+                                c.period === ctx.period &&
+                                !["rent", "deposit"].includes(c.kind),
+                            ) ?? [];
+                          const recurring =
+                            rules.data?.filter((r) => r.tenancy_id === occupant?.id && r.active) ??
+                            [];
+                          return (
+                            <article className="unit-spec" key={u.id}>
+                              <div className="split">
+                                <h3>Unit {u.number}</h3>
+                                <Badge tone={u.occupied ? "green" : "neutral"}>
+                                  {u.occupied ? "Assigned" : "Vacant"}
+                                </Badge>
+                              </div>
+                              <p className="eyebrow">{u.usage}</p>
+                              <p>
+                                <strong>{u.unit_type}</strong> · {u.building}
+                                {u.floor ? ` · Floor ${u.floor}` : ""}
+                              </p>
+                              <dl className="rental-details">
+                                <div>
+                                  <dt>Tenant</dt>
+                                  <dd>{occupant?.tenant_name ?? "No active tenancy"}</dd>
+                                </div>
+                                {readLeases && (
+                                  <div>
+                                    <dt>Default monthly rent</dt>
+                                    <dd>{money(u.default_rent, ctx.org.currency)}</dd>
+                                  </div>
+                                )}
+                                {lease && (
+                                  <div>
+                                    <dt>Agreed monthly rent</dt>
+                                    <dd>{money(lease.rent, ctx.org.currency)}</dd>
+                                  </div>
+                                )}
+                                {lease && (
+                                  <div>
+                                    <dt>Payment reference</dt>
+                                    <dd className="mono">{lease.reference}</dd>
+                                  </div>
+                                )}
+                              </dl>
+                              {finance && occupant && (
+                                <>
+                                  <h4>Recurring extras</h4>
+                                  {recurring.length ? (
+                                    recurring.map((r) => (
+                                      <p key={r.id}>
+                                        {r.description}: {money(r.amount, ctx.org.currency)} / month{" "}
+                                        <small>
+                                          ({r.start_period} to {r.end_period ?? "ongoing"})
+                                        </small>
+                                      </p>
+                                    ))
+                                  ) : (
+                                    <p className="muted">No recurring extra bills set.</p>
+                                  )}
+                                  <h4>Other bills · {ctx.period}</h4>
+                                  {extras.length ? (
+                                    extras.map((c) => (
+                                      <p key={c.id}>
+                                        {c.description}: {money(c.amount, c.currency)}{" "}
+                                        <small>· {money(c.balance, c.currency)} remaining</small>
+                                      </p>
+                                    ))
+                                  ) : (
+                                    <p className="muted">No other bills recorded this month.</p>
+                                  )}
+                                  <div className="toolbar-actions">
+                                    <button
+                                      className="button secondary"
+                                      onClick={() =>
+                                        ctx.openForm({ kind: "charge", id: occupant.id })
+                                      }
+                                    >
+                                      Add bill
+                                    </button>
+                                    <button
+                                      className="button secondary"
+                                      onClick={() =>
+                                        ctx.openForm({ kind: "recurring-charge", id: occupant.id })
+                                      }
+                                    >
+                                      Set recurring bill
+                                    </button>
+                                  </div>
+                                </>
+                              )}
+                              {!occupant && readLeases && (
+                                <p className="muted">
+                                  Assign a tenant before adding water, garbage or service bills.
+                                </p>
+                              )}
+                              <div className="toolbar-actions">
+                                {canManage(ctx.org.role) && (
+                                  <button
+                                    className="button secondary"
+                                    onClick={() => ctx.openForm({ kind: "unit-edit", id: u.id })}
+                                  >
+                                    Edit unit
+                                  </button>
+                                )}
+                                {!u.occupied && canManageTenants(ctx.org.role) && (
+                                  <button
+                                    className="button secondary"
+                                    onClick={() => ctx.openForm({ kind: "tenancy", id: u.id })}
+                                  >
+                                    Assign tenant
+                                  </button>
+                                )}
+                              </div>
+                            </article>
+                          );
+                        })}
+                    </div>
+                    {canManage(ctx.org.role) && (
+                      <button
+                        className="button secondary"
+                        onClick={() => ctx.openForm({ kind: "unit", id: p.id })}
+                      >
+                        <Plus size={15} /> Add unit here
+                      </button>
+                    )}
                     {p.contact && <p className="muted">Property contact: {p.contact}</p>}
-                  </div>
+                  </>
                 )}
               </div>
             </article>
@@ -448,6 +667,148 @@ export function PropertiesPanel({ ctx }: { ctx: WorkspaceContext }) {
   );
 }
 
+export function rentalLabel(rental: Rental) {
+  return `${rental.property_name} · Unit ${rental.number} · ${rental.unit_type}`;
+}
+
+function rentalStatus(rental: Rental, today: string) {
+  if (rental.status !== "active" || (rental.end_date && rental.end_date < today)) return "Ended";
+  return rental.start_date > today ? "Upcoming" : "Active";
+}
+
+export function RentalsPanel({ ctx }: { ctx: WorkspaceContext }) {
+  const rentals = useData(ctx, "rentals");
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("all");
+  if (rentals.error)
+    return <ErrorBox message={rentals.error.message} retry={() => void ctx.refresh()} />;
+  if (!rentals.data) return <Loading />;
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: ctx.org.timezone });
+  const filtered = rentals.data.filter(
+    (r) =>
+      (status === "all" || rentalStatus(r, today) === status) &&
+      `${rentalLabel(r)} ${r.location} ${r.reference}`.toLowerCase().includes(search.toLowerCase()),
+  );
+  return (
+    <>
+      <div className="toolbar">
+        <label className="search-field">
+          <Search size={17} />
+          <input
+            aria-label="Search my rentals"
+            placeholder="Search by unit, location or reference..."
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </label>
+        <label className="field">
+          <span>Rental status</span>
+          <select value={status} onChange={(event) => setStatus(event.target.value)}>
+            {["all", "Active", "Upcoming", "Ended"].map((value) => (
+              <option value={value} key={value}>
+                {value === "all" ? "All rentals" : value}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+      <p className="muted">
+        One card for each unit you rent, whether it is a home or business premises. Rent is your
+        agreed monthly amount; balances include unpaid rent and bills, excluding deposits. These are
+        all-time balances, independent of the reporting month.
+      </p>
+      {!filtered.length ? (
+        <Empty title={search || status !== "all" ? "No matching rentals" : "No rentals linked yet"}>
+          Your landlord can link your account to each rental agreement. Previous rentals remain here
+          for your records.
+        </Empty>
+      ) : (
+        <div className="property-grid rental-grid">
+          {filtered.map((r) => {
+            const state = rentalStatus(r, today);
+            const Icon = r.usage === "commercial" ? Store : Home;
+            return (
+              <article className="surface rental-card" key={r.id}>
+                <div className="split">
+                  <span className="metric-icon">
+                    <Icon size={25} />
+                  </span>
+                  <Badge
+                    tone={state === "Active" ? "green" : state === "Upcoming" ? "amber" : "neutral"}
+                  >
+                    {state}
+                  </Badge>
+                </div>
+                <span className="eyebrow">{r.usage} · YOUR RENTED UNIT</span>
+                <h2>{r.unit_type}</h2>
+                <strong>{r.property_name}</strong>
+                <p className="location">
+                  <MapPin size={14} /> {r.location}
+                </p>
+                <dl className="rental-details">
+                  <div>
+                    <dt>Unit</dt>
+                    <dd>{r.number}</dd>
+                  </div>
+                  {r.building && (
+                    <div>
+                      <dt>Building / block</dt>
+                      <dd>{r.building}</dd>
+                    </div>
+                  )}
+                  {r.floor && (
+                    <div>
+                      <dt>Floor</dt>
+                      <dd>{r.floor}</dd>
+                    </div>
+                  )}
+                  <div>
+                    <dt>Agreed monthly rent</dt>
+                    <dd>{money(r.rent, r.currency)}</dd>
+                  </div>
+                  <div>
+                    <dt>Monthly due day</dt>
+                    <dd>{r.due_day}</dd>
+                  </div>
+                  <div>
+                    <dt>Rental dates</dt>
+                    <dd>
+                      {r.start_date} to {r.end_date ?? "ongoing"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Payment reference</dt>
+                    <dd className="mono">{r.reference}</dd>
+                  </div>
+                </dl>
+                <div className="property-finance">
+                  <div>
+                    <small>Outstanding rent & bills</small>
+                    <strong>{money(r.outstanding, r.currency)}</strong>
+                  </div>
+                  <div>
+                    <small>Overdue</small>
+                    <strong className={r.overdue ? "red-text" : "green-text"}>
+                      {money(r.overdue, r.currency)}
+                    </strong>
+                  </div>
+                </div>
+                {r.contact && <p className="muted">Landlord / managing contact: {r.contact}</p>}
+                <button
+                  className="button secondary wide"
+                  onClick={() => ctx.navigate("payments", r.id)}
+                >
+                  View rent & bills <ArrowUpRight size={15} />
+                </button>
+              </article>
+            );
+          })}
+        </div>
+      )}
+    </>
+  );
+}
+
 export function TenantsPanel({ ctx }: { ctx: WorkspaceContext }) {
   const tenants = useData(ctx, "tenants");
   const tenancies = useData(ctx, "tenancies");
@@ -467,19 +828,26 @@ export function TenantsPanel({ ctx }: { ctx: WorkspaceContext }) {
   const rows = tenants.data
     .map((person) => {
       const leases = tenancies.data.filter((t) => t.tenant_id === person.id);
-      const active = leases.find((t) => t.status === "active");
-      const unit = units.data.find((u) => u.id === active?.unit_id);
+      const active = leases.filter((t) => t.status === "active");
+      const unitLabels = active
+        .map((lease) => {
+          const unit = units.data.find((u) => u.id === lease.unit_id);
+          return unit ? `${unit.building} · ${unit.number}` : lease.reference;
+        })
+        .join("; ");
       const overdue = (charges.data ?? [])
         .filter((c) => leases.some((t) => t.id === c.tenancy_id) && c.overdue)
         .reduce((sum, c) => sum + c.balance, 0);
-      return { person, active, unit, overdue };
+      return { person, active, unitLabels, overdue };
     })
     .filter((r) =>
       `${r.person.name} ${r.person.email} ${r.person.phone}`
         .toLowerCase()
         .includes(search.toLowerCase()),
     )
-    .filter((r) => filter === "all" || (filter === "overdue" ? r.overdue > 0 : !!r.active));
+    .filter(
+      (r) => filter === "all" || (filter === "overdue" ? r.overdue > 0 : r.active.length > 0),
+    );
   return (
     <>
       <div className="toolbar">
@@ -529,8 +897,8 @@ export function TenantsPanel({ ctx }: { ctx: WorkspaceContext }) {
               <thead>
                 <tr>
                   <th>Tenant</th>
-                  <th>Unit / reference</th>
-                  <th>Monthly rent</th>
+                  <th>Units / references</th>
+                  <th>Monthly rent · all active units</th>
                   {canFinance(ctx.org.role) && <th>Overdue</th>}
                   <th>Status</th>
                   <th>
@@ -539,7 +907,7 @@ export function TenantsPanel({ ctx }: { ctx: WorkspaceContext }) {
                 </tr>
               </thead>
               <tbody>
-                {rows.map(({ person, active, unit, overdue }) => (
+                {rows.map(({ person, active, unitLabels, overdue }) => (
                   <tr key={person.id}>
                     <td>
                       <div className="person-cell">
@@ -551,18 +919,31 @@ export function TenantsPanel({ ctx }: { ctx: WorkspaceContext }) {
                       </div>
                     </td>
                     <td>
-                      <strong>{unit ? `${unit.building} · ${unit.number}` : "Not assigned"}</strong>
-                      <small>{active?.reference ?? "No active tenancy"}</small>
+                      <strong>
+                        {active.length > 1
+                          ? `${active.length} units: ${unitLabels}`
+                          : unitLabels || "Not assigned"}
+                      </strong>
+                      <small>
+                        {active.map((lease) => lease.reference).join("; ") || "No active tenancy"}
+                      </small>
                     </td>
-                    <td>{active ? money(active.rent, ctx.org.currency) : "—"}</td>
+                    <td>
+                      {active.length
+                        ? money(
+                            active.reduce((sum, lease) => sum + lease.rent, 0),
+                            ctx.org.currency,
+                          )
+                        : "—"}
+                    </td>
                     {canFinance(ctx.org.role) && (
                       <td className={overdue ? "red-text" : "muted"}>
                         {money(overdue, ctx.org.currency)}
                       </td>
                     )}
                     <td>
-                      <Badge tone={overdue ? "red" : active ? "green" : "neutral"}>
-                        {overdue ? "Overdue" : active ? "Active" : "Unassigned"}
+                      <Badge tone={overdue ? "red" : active.length ? "green" : "neutral"}>
+                        {overdue ? "Overdue" : active.length ? "Active" : "Unassigned"}
                       </Badge>
                     </td>
                     <td>
@@ -601,7 +982,7 @@ function PaymentTable({ ctx, payments }: { ctx: WorkspaceContext; payments: Quer
       <table>
         <thead>
           <tr>
-            <th>Tenant / property</th>
+            <th>{ctx.org.role === "tenant" ? "Rental unit" : "Tenant / property"}</th>
             <th>Reference</th>
             <th>Date received</th>
             <th>Source</th>
@@ -621,9 +1002,11 @@ function PaymentTable({ ctx, payments }: { ctx: WorkspaceContext; payments: Quer
                     <ArrowDownLeft size={17} />
                   </span>
                   <div>
-                    <strong>{p.tenant}</strong>
+                    <strong>{ctx.org.role === "tenant" ? p.property_name : p.tenant}</strong>
                     <small>
-                      {p.property_name} · {p.unit}
+                      {ctx.org.role === "tenant"
+                        ? `Unit ${p.unit}`
+                        : `${p.property_name} · ${p.unit}`}
                     </small>
                   </div>
                 </div>
@@ -664,6 +1047,8 @@ function PaymentTable({ ctx, payments }: { ctx: WorkspaceContext; payments: Quer
 
 export function PaymentsPanel({ ctx }: { ctx: WorkspaceContext }) {
   const finance = canFinance(ctx.org.role);
+  const tenant = ctx.org.role === "tenant";
+  const rentals = useData(ctx, "rentals", tenant);
   const payments = useData(ctx, "payments");
   const charges = useData(ctx, "charges");
   const reconciliation = useData(ctx, "reconciliation", finance);
@@ -681,6 +1066,7 @@ export function PaymentsPanel({ ctx }: { ctx: WorkspaceContext }) {
     tenancies.error,
     tenants.error,
     imports.error,
+    rentals.error,
   ].find(Boolean);
   if (firstError) return <ErrorBox message={firstError.message} retry={() => void ctx.refresh()} />;
   if (
@@ -688,15 +1074,22 @@ export function PaymentsPanel({ ctx }: { ctx: WorkspaceContext }) {
     !charges.data ||
     !tenancies.data ||
     !tenants.data ||
-    (finance && (!reconciliation.data || !imports.data))
+    (finance && (!reconciliation.data || !imports.data)) ||
+    (tenant && !rentals.data)
   )
     return <Loading />;
   const filtered = charges.data
     .filter((c) => c.period === ctx.period || section === "arrears")
+    .filter((c) => !tenant || !ctx.rentalId || c.tenancy_id === ctx.rentalId)
     .filter((c) => section !== "arrears" || c.overdue);
-  const tenantName = (id: string) =>
-    tenants.data.find((t) => t.id === tenancies.data.find((lease) => lease.id === id)?.tenant_id)
-      ?.name ?? id;
+  const tenantName = (id: string) => {
+    const rental = rentals.data?.find((r) => r.id === id);
+    if (tenant && rental) return rentalLabel(rental);
+    return (
+      tenants.data.find((t) => t.id === tenancies.data.find((lease) => lease.id === id)?.tenant_id)
+        ?.name ?? id
+    );
+  };
   async function act(key: string, operation: () => Promise<unknown>) {
     setBusy(key);
     setError("");
@@ -746,7 +1139,7 @@ export function PaymentsPanel({ ctx }: { ctx: WorkspaceContext }) {
             onClick={() => void exportLedger()}
             disabled={!!busy}
           >
-            <ArrowDownToLine size={16} /> Export ledger
+            <ArrowDownToLine size={16} /> {tenant ? "Export full ledger" : "Export ledger"}
           </button>
           {finance && (
             <>
@@ -766,6 +1159,22 @@ export function PaymentsPanel({ ctx }: { ctx: WorkspaceContext }) {
           )}
         </div>
       </div>
+      {tenant && (
+        <label className="field rental-filter">
+          <span>Rental account</span>
+          <select
+            value={ctx.rentalId}
+            onChange={(event) => ctx.navigate("payments", event.target.value)}
+          >
+            <option value="">All my rentals</option>
+            {rentals.data?.map((r) => (
+              <option value={r.id} key={r.id}>
+                {rentalLabel(r)} · {r.reference}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       {error && <ErrorBox message={error} />}
       {section === "reconcile" ? (
         <>
@@ -932,7 +1341,7 @@ export function PaymentsPanel({ ctx }: { ctx: WorkspaceContext }) {
               <table>
                 <thead>
                   <tr>
-                    <th>Tenant / charge</th>
+                    <th>{tenant ? "Rental / charge" : "Tenant / charge"}</th>
                     <th>Due date</th>
                     <th>Billed</th>
                     <th>Allocated</th>
@@ -974,7 +1383,12 @@ export function PaymentsPanel({ ctx }: { ctx: WorkspaceContext }) {
       )}
       <section className="surface">
         <SectionHead title="Recorded payments" label="PAYMENT HISTORY" />
-        <PaymentTable ctx={ctx} payments={payments.data} />
+        <PaymentTable
+          ctx={ctx}
+          payments={payments.data.filter(
+            (p) => !tenant || !ctx.rentalId || p.tenancy_id === ctx.rentalId,
+          )}
+        />
       </section>
     </>
   );
@@ -1022,6 +1436,12 @@ export function MaintenancePanel({ ctx }: { ctx: WorkspaceContext }) {
                 </Badge>
               </div>
               <h2>{r.title}</h2>
+              <p className="muted">
+                {r.property_name} ·{" "}
+                {r.tenant_name
+                  ? `${r.tenant_name} · Unit ${r.unit}`
+                  : "Common area / no tenant linked"}
+              </p>
               <p>{r.description}</p>
               <div className="split">
                 <Badge tone={["resolved", "closed"].includes(r.status) ? "green" : "amber"}>

@@ -31,7 +31,9 @@ test("landlord creates persisted records, reconciles a statement and completes m
   await dialog
     .getByRole("combobox", { name: "Property", exact: true })
     .selectOption({ label: "Synthetic E2E Property" });
-  await dialog.getByLabel("Unit number").fill("TEST-01");
+  await dialog.getByRole("combobox", { name: "Unit use", exact: true }).selectOption("commercial");
+  await dialog.getByLabel("Unit label", { exact: true }).fill("TEST-01");
+  await dialog.getByLabel("Unit specification", { exact: true }).fill("Rental stall");
   await dialog.getByLabel("Default monthly rent").fill("10000");
   await dialog.getByRole("button", { name: "Save & continue" }).click();
   await expect(dialog).not.toBeVisible();
@@ -46,8 +48,36 @@ test("landlord creates persisted records, reconciles a statement and completes m
   await dialog.getByLabel("Email address").fill("browser-tenant@example.com");
   await dialog.getByRole("button", { name: "Save & continue" }).click();
   await expect(page.getByText("Synthetic Browser Tenant", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Assign tenancy" }).click();
+  await page
+    .getByRole("navigation", { name: "Main navigation" })
+    .getByRole("button", { name: "Properties", exact: true })
+    .click();
+  const property = page.locator(".property-card").filter({
+    has: page.getByRole("heading", { name: "Synthetic E2E Property", exact: true }),
+  });
+  await expect(property).toContainText("Commercial units");
+  await property.getByRole("button", { name: "View units", exact: true }).click();
+  const unit = property.locator(".unit-spec").filter({ hasText: "Unit TEST-01" });
+  await expect(unit).toContainText("Rental stall");
+  await expect(unit).toContainText("No active tenancy");
+  await unit.getByRole("button", { name: "Edit unit", exact: true }).click();
   dialog = page.getByRole("dialog");
+  await expect(dialog.getByRole("combobox", { name: "Unit use", exact: true })).toHaveValue(
+    "commercial",
+  );
+  await expect(dialog.getByLabel("Unit specification", { exact: true })).toHaveValue(
+    "Rental stall",
+  );
+  await dialog.getByLabel("Default monthly rent").fill("12000");
+  await dialog.getByRole("button", { name: "Save & continue" }).click();
+  await expect(dialog).not.toBeVisible();
+  await expect(unit).toContainText(/Ksh\s12,000\.00/);
+  await unit.getByRole("button", { name: "Assign tenant", exact: true }).click();
+  dialog = page.getByRole("dialog");
+  await expect(
+    dialog.getByRole("combobox", { name: "Vacant unit" }).locator("option:checked"),
+  ).toHaveText("Synthetic E2E Property · Main TEST-01");
+  await expect(dialog.getByLabel("Agreed monthly rent")).toHaveValue("12000.00");
   await dialog
     .getByRole("combobox", { name: "Tenant", exact: true })
     .selectOption({ label: "Synthetic Browser Tenant" });
@@ -59,6 +89,8 @@ test("landlord creates persisted records, reconciles a statement and completes m
   await dialog.getByLabel("Start date").fill("2026-01-01");
   await dialog.getByRole("button", { name: "Save & continue" }).click();
   await expect(dialog).not.toBeVisible();
+  await expect(unit).toContainText("Synthetic Browser Tenant");
+  await expect(unit).toContainText(/Ksh\s10,000\.00/);
 
   await page
     .getByRole("navigation", { name: "Main navigation" })
@@ -141,6 +173,32 @@ test("landlord creates persisted records, reconciles a statement and completes m
     .getByRole("button", { name: "Properties", exact: true })
     .click();
   await expect(page.getByRole("heading", { name: "Synthetic E2E Property" })).toBeVisible();
+  await property.getByRole("button", { name: "View units", exact: true }).click();
+  await unit.getByRole("button", { name: "Add bill", exact: true }).click();
+  dialog = page.getByRole("dialog");
+  await expect(
+    dialog.getByRole("combobox", { name: "Tenancy", exact: true }).locator("option:checked"),
+  ).toHaveText("Synthetic Browser Tenant · JOJO-E2E");
+  await dialog.getByRole("combobox", { name: "Charge type", exact: true }).selectOption("water");
+  await dialog.getByLabel("Description", { exact: true }).fill("Synthetic stall water bill");
+  await dialog.getByLabel(/^Amount \(/).fill("800");
+  await dialog.getByRole("button", { name: "Save & continue" }).click();
+  await expect(unit).toContainText("Synthetic stall water bill");
+  await expect(unit).toContainText(/Ksh\s800\.00/);
+  await unit.getByRole("button", { name: "Set recurring bill", exact: true }).click();
+  dialog = page.getByRole("dialog");
+  await expect(
+    dialog.getByRole("combobox", { name: "Tenancy", exact: true }).locator("option:checked"),
+  ).toHaveText("Synthetic Browser Tenant · JOJO-E2E");
+  await dialog.getByLabel("Description", { exact: true }).fill("Synthetic stall service charge");
+  await dialog.getByRole("combobox", { name: "Charge type", exact: true }).selectOption("service");
+  await dialog.getByLabel("Monthly amount").fill("500");
+  await dialog.getByRole("button", { name: "Save record" }).click();
+  await expect(unit).toContainText("Synthetic stall service charge");
+  await page.screenshot({
+    path: test.info().outputPath("commercial-unit-details.png"),
+    fullPage: true,
+  });
   await page.getByRole("button", { name: "Sign out", exact: true }).click();
   await expect(page.getByLabel("Email address")).toBeVisible();
   await page.reload();
@@ -187,6 +245,12 @@ test("mobile web stays usable and shows JOJOBUILDS branding", async ({ page }) =
     .getByRole("button", { name: "Properties", exact: true })
     .click();
   await expect(page.getByRole("heading", { name: "Kilimani Heights", exact: true })).toBeVisible();
+  const property = page.locator(".property-card").filter({
+    has: page.getByRole("heading", { name: "Kilimani Heights", exact: true }),
+  });
+  await property.getByRole("button", { name: "View units", exact: true }).click();
+  await expect(property.locator(".unit-spec").first()).toContainText("Agreed monthly rent");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({
     path: test.info().outputPath("mobile-properties.png"),
     fullPage: true,

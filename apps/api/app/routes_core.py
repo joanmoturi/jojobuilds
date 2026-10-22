@@ -46,9 +46,14 @@ def properties(
     if q:
         query = query.where(m.Property.name.ilike(f"%{q}%"))
     result = []
+    leases = visible_tenancies(db, ctx)
+    own_units = {t.unit_id for t in leases}
     for prop in db.scalars(query.order_by(m.Property.name).limit(500)):
-        units = list(db.scalars(select(m.Unit).where(m.Unit.property_id == prop.id)))
-        tids = [t.id for t in visible_tenancies(db, ctx) if t.unit_id in {u.id for u in units}]
+        unit_query = select(m.Unit).where(m.Unit.property_id == prop.id)
+        if ctx.member.role == "tenant":
+            unit_query = unit_query.where(m.Unit.id.in_(own_units))
+        units = list(db.scalars(unit_query))
+        tids = [t.id for t in leases if t.unit_id in {u.id for u in units}]
         active = db.scalars(
             select(m.Tenancy).where(m.Tenancy.id.in_(tids), m.Tenancy.status == "active")
         ).all()
@@ -132,6 +137,7 @@ def units(
             building=u.building,
             floor=u.floor,
             unit_type=u.unit_type,
+            usage=u.usage,
             default_rent=u.default_rent,
             occupied=u.id in active_units,
         )
@@ -149,6 +155,25 @@ def create_unit(data: s.UnitIn, ctx: Context = Depends(context), db: Session = D
     db.add(unit)
     db.flush()
     audit(db, ctx, "unit.created", unit.id)
+    return {"id": unit.id}
+
+
+@router.put("/units/{unit_id}")
+def update_unit(
+    unit_id: str, data: s.UnitIn, ctx: Context = Depends(context), db: Session = Depends(get_db)
+):
+    require(ctx, "manage")
+    unit = db.get(m.Unit, unit_id)
+    if not unit or unit.org_id != ctx.org.id:
+        raise HTTPException(404, "Unit not found")
+    prop = scoped_property(db, ctx, unit.property_id)
+    if prop.archived or unit.archived:
+        raise HTTPException(409, "Archived units or properties cannot be edited")
+    if data.property_id != unit.property_id:
+        raise HTTPException(409, "A unit cannot be moved to another property")
+    for key, value in data.model_dump(exclude={"property_id"}).items():
+        setattr(unit, key, value)
+    audit(db, ctx, "unit.updated", unit.id)
     return {"id": unit.id}
 
 
@@ -209,6 +234,53 @@ def tenancies(ctx: Context = Depends(context), db: Session = Depends(get_db)):
         )
         for t in visible_tenancies(db, ctx)
     ]
+
+
+@router.get("/rentals", response_model=list[s.RentalOut])
+def rentals(ctx: Context = Depends(context), db: Session = Depends(get_db)):
+    if ctx.member.role != "tenant":
+        raise HTTPException(403, "My rentals is available to tenants")
+    result = []
+    today = local_today(ctx)
+    for tenancy in visible_tenancies(db, ctx):
+        unit = db.get(m.Unit, tenancy.unit_id)
+        prop = db.get(m.Property, unit.property_id)
+        charges = [
+            charge_view(db, charge, today)
+            for charge in db.scalars(
+                select(m.Charge).where(
+                    m.Charge.tenancy_id == tenancy.id, m.Charge.kind != "deposit"
+                )
+            )
+        ]
+        result.append(
+            dict(
+                id=tenancy.id,
+                unit_id=unit.id,
+                tenant_id=tenancy.tenant_id,
+                reference=tenancy.reference,
+                rent=tenancy.rent,
+                deposit=tenancy.deposit,
+                due_day=tenancy.due_day,
+                start_date=tenancy.start_date,
+                end_date=tenancy.end_date,
+                status=tenancy.status,
+                property_id=prop.id,
+                property_name=prop.name,
+                location=prop.location,
+                county=prop.county,
+                contact=prop.contact,
+                number=unit.number,
+                building=unit.building,
+                floor=unit.floor,
+                unit_type=unit.unit_type,
+                usage=unit.usage,
+                currency=ctx.org.currency,
+                outstanding=sum(charge["balance"] for charge in charges),
+                overdue=sum(charge["balance"] for charge in charges if charge["overdue"]),
+            )
+        )
+    return sorted(result, key=lambda rental: (rental["property_name"], rental["number"]))
 
 
 @router.post("/tenancies", status_code=201)

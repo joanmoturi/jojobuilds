@@ -25,6 +25,8 @@ export default function Record() {
   const tenancies = useResource("tenancies", payment && !!org && canFinance(org.role));
   const properties = useResource("properties");
   const maintenance = useResource("maintenance", updating);
+  const maintenanceOptions = useResource("maintenance-options", !payment && !updating);
+  const providers = useResource("providers", updating);
   const [values, setValues] = useState<Record<string, string>>({});
   const [idempotency] = useState(
     () =>
@@ -61,11 +63,28 @@ export default function Record() {
           <Pressable
             key={option.id}
             accessibilityRole="radio"
-            accessibilityState={{ checked: values[key] === option.id }}
-            onPress={() => setValues((old) => ({ ...old, [key]: option.id }))}
+            accessibilityState={{
+              checked:
+                (values[key] ??
+                  (key === "provider_id" ? (request?.provider_id ?? "") : undefined)) === option.id,
+            }}
+            onPress={() =>
+              setValues((old) => ({
+                ...old,
+                [key]: option.id,
+                ...(key === "property_id" ? { tenancy_id: "" } : {}),
+              }))
+            }
             style={[
               styles.input,
-              { borderColor: values[key] === option.id ? "#a44f36" : "#e4e5d9" },
+              {
+                borderColor:
+                  (values[key] ??
+                    (key === "provider_id" ? (request?.provider_id ?? "") : undefined)) ===
+                  option.id
+                    ? "#a44f36"
+                    : "#e4e5d9",
+              },
             ]}
           >
             <Text style={styles.text}>{option.label}</Text>
@@ -99,11 +118,14 @@ export default function Record() {
           status: required("status"),
           note: required("note"),
           assigned_to: values.assigned_to?.trim() || request?.assigned_to || "",
+          provider_id:
+            values.provider_id === "" ? null : (values.provider_id ?? request?.provider_id ?? null),
           cost: parseOptionalMoney(values.cost ?? "", request?.cost ?? 0),
         });
       } else {
         await api.post("/maintenance", {
           property_id: required("property_id"),
+          tenancy_id: values.tenancy_id || null,
           title: required("title"),
           description: required("description"),
           priority: values.priority || "normal",
@@ -118,9 +140,14 @@ export default function Record() {
       setBusy(false);
     }
   }
-  const queryError = [tenants.error, tenancies.error, properties.error, maintenance.error].find(
-    Boolean,
-  );
+  const queryError = [
+    tenants.error,
+    tenancies.error,
+    properties.error,
+    maintenance.error,
+    maintenanceOptions.error,
+    providers.error,
+  ].find(Boolean);
   return (
     <Screen
       title={payment ? "Record a payment." : updating ? "Move things forward." : "Report an issue."}
@@ -159,6 +186,12 @@ export default function Record() {
           ) : updating ? (
             <>
               <Text style={styles.heading}>{request?.title}</Text>
+              <Text style={styles.muted}>
+                {request?.tenant_name
+                  ? `${request.tenant_name} · Unit ${request.unit}`
+                  : "Common area"}{" "}
+                · {request?.property_name}
+              </Text>
               <Tag text={request?.status.replaceAll("_", " ") ?? "Loading status"} />
               {picker(
                 "status",
@@ -170,7 +203,20 @@ export default function Record() {
               )}
               {field("note", "Tenant-visible update")}
               {field("assigned_to", "Assigned worker (optional)")}
+              {picker("provider_id", "Registered service provider", [
+                { id: "", label: "Other worker / no registered provider" },
+                ...(providers.data
+                  ?.filter((provider) => provider.active || provider.id === request?.provider_id)
+                  .map((provider) => ({
+                    id: provider.id,
+                    label: `${provider.name} · ${provider.trade}`,
+                  })) ?? []),
+              ])}
               {field("cost", `Total recorded cost (${org?.currency}, optional)`, true)}
+              <Text style={styles.muted}>
+                Recorded cost is not a payment. Record a provider bill and outgoing payment in
+                Service providers.
+              </Text>
             </>
           ) : (
             <>
@@ -179,6 +225,17 @@ export default function Record() {
                 "Property",
                 properties.data?.map((p) => ({ id: p.id, label: p.name })) ?? [],
               )}
+              {picker("tenancy_id", "Tenant / unit (optional for common areas)", [
+                { id: "", label: "Common area / no tenant linked" },
+                ...(maintenanceOptions.data
+                  ?.filter(
+                    (option) => !values.property_id || option.property_id === values.property_id,
+                  )
+                  .map((option) => ({
+                    id: option.id,
+                    label: `${option.tenant_name} · ${option.property_name} · Unit ${option.unit}`,
+                  })) ?? []),
+              ])}
               {field("title", "Short title")}
               {field("description", "Describe the problem")}
               {picker(

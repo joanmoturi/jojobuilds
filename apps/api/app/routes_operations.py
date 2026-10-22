@@ -21,6 +21,7 @@ from .config import settings
 from .db import get_db
 from .imports import MAX_SIZE
 from .routes_core import visible_tenancies
+from .routes_payables import provider_record
 
 router = APIRouter(prefix="/api/v1", tags=["operations"])
 TRANSITIONS = {
@@ -55,23 +56,52 @@ def maintenance(ctx: Context = Depends(context), db: Session = Depends(get_db)):
         query = query.where(
             m.Maintenance.tenancy_id.in_([t.id for t in visible_tenancies(db, ctx)])
         )
-    return [
-        dict(
-            id=r.id,
-            property_id=r.property_id,
-            tenancy_id=r.tenancy_id,
-            title=r.title,
-            description=r.description,
-            category=r.category,
-            priority=r.priority,
-            status=r.status,
-            assigned_to=r.assigned_to,
-            cost=None if ctx.member.role == "tenant" else r.cost,
-            updates=r.updates,
-            created_at=r.created_at.isoformat(),
+    result = []
+    for r in db.scalars(query.order_by(m.Maintenance.created_at.desc()).limit(500)):
+        tenancy = db.get(m.Tenancy, r.tenancy_id) if r.tenancy_id else None
+        tenant = db.get(m.Tenant, tenancy.tenant_id) if tenancy else None
+        unit = db.get(m.Unit, tenancy.unit_id) if tenancy else None
+        result.append(
+            dict(
+                id=r.id,
+                property_id=r.property_id,
+                tenancy_id=r.tenancy_id,
+                tenant_name=tenant.name if tenant else None,
+                unit=unit.number if unit else None,
+                property_name=db.get(m.Property, r.property_id).name,
+                provider_id=None if ctx.member.role == "tenant" else r.provider_id,
+                title=r.title,
+                description=r.description,
+                category=r.category,
+                priority=r.priority,
+                status=r.status,
+                assigned_to=r.assigned_to,
+                cost=None if ctx.member.role == "tenant" else r.cost,
+                updates=r.updates,
+                created_at=r.created_at.isoformat(),
+            )
         )
-        for r in db.scalars(query.order_by(m.Maintenance.created_at.desc()).limit(500))
-    ]
+    return result
+
+
+@router.get("/maintenance-options", response_model=list[s.MaintenanceOptionOut])
+def maintenance_options(ctx: Context = Depends(context), db: Session = Depends(get_db)):
+    result = []
+    for tenancy in visible_tenancies(db, ctx):
+        if tenancy.status != "active":
+            continue
+        unit = db.get(m.Unit, tenancy.unit_id)
+        result.append(
+            dict(
+                id=tenancy.id,
+                tenant_name=db.get(m.Tenant, tenancy.tenant_id).name,
+                unit=unit.number,
+                unit_id=unit.id,
+                property_id=unit.property_id,
+                property_name=db.get(m.Property, unit.property_id).name,
+            )
+        )
+    return result
 
 
 @router.post("/maintenance", status_code=201)
@@ -114,6 +144,14 @@ def update_maintenance(
     record = request_access(db, ctx, request_id)
     if data.status != record.status and data.status not in TRANSITIONS[record.status]:
         raise HTTPException(422, f"Cannot move from {record.status} to {data.status}")
+    if data.provider_id:
+        provider = provider_record(db, ctx, data.provider_id)
+        if not provider.active and data.provider_id != record.provider_id:
+            raise HTTPException(422, "Choose an active service provider")
+        record.assigned_to = provider.name
+    else:
+        record.assigned_to = data.assigned_to
+    record.provider_id = data.provider_id
     record.updates = [
         *record.updates,
         {
@@ -124,7 +162,6 @@ def update_maintenance(
         },
     ]
     record.status = data.status
-    record.assigned_to = data.assigned_to
     record.cost = data.cost
     audit(db, ctx, "maintenance.updated", record.id, status=data.status)
     if record.tenancy_id:

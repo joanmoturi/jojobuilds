@@ -97,6 +97,14 @@ Open Expo Go, scan the QR code printed by your PC's Expo terminal and wait for
 the app to load. Sign in using the same synthetic account as the website.
 You should see the same portfolio records.
 
+Under **More**, open **Service providers & bills** for contacts, supplier
+obligations and outgoing payment history; **Recurring & variable tenant bills**
+for fixed rules or manually entered water/garbage/service bills; and, as owner,
+**Private owner finances** for manual tax/loan obligations and personal-use
+payments. Maintenance requests show tenant/unit information and can be assigned
+to a registered provider. These workflows record amounts and payment history,
+not bank transfers or automatic tax calculations.
+
 Keep the API and Expo terminals open. A QR code starts the development client;
 it does not publish the app or make your backend available on the internet.
 Do not use an Expo tunnel as a supposed fix for an unreachable private API.

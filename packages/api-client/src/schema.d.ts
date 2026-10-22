@@ -290,6 +290,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/units/{unit_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update Unit */
+        put: operations["update_unit_api_v1_units__unit_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tenants": {
         parameters: {
             query?: never;
@@ -320,6 +337,23 @@ export interface paths {
         put?: never;
         /** Create Tenancy */
         post: operations["create_tenancy_api_v1_tenancies_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rentals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Rentals */
+        get: operations["rentals_api_v1_rentals_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -585,6 +619,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/maintenance-options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Maintenance Options */
+        get: operations["maintenance_options_api_v1_maintenance_options_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/maintenance/{request_id}": {
         parameters: {
             query?: never;
@@ -629,6 +680,162 @@ export interface paths {
         };
         /** Download Attachment */
         get: operations["download_attachment_api_v1_attachments__attachment_id__download_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/providers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Providers */
+        get: operations["providers_api_v1_providers_get"];
+        put?: never;
+        /** Create Provider */
+        post: operations["create_provider_api_v1_providers_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/providers/{provider_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update Provider */
+        put: operations["update_provider_api_v1_providers__provider_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payables": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Payables */
+        get: operations["payables_api_v1_payables_get"];
+        put?: never;
+        /** Create Payable */
+        post: operations["create_payable_api_v1_payables_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payables/{payable_id}/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Pay Payable */
+        post: operations["pay_payable_api_v1_payables__payable_id__payments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payables/{payable_id}/void": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Void Payable */
+        post: operations["void_payable_api_v1_payables__payable_id__void_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/outgoing-payments/{payment_id}/reverse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reverse Outgoing */
+        post: operations["reverse_outgoing_api_v1_outgoing_payments__payment_id__reverse_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/recurring-charges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Recurring Charges */
+        get: operations["recurring_charges_api_v1_recurring_charges_get"];
+        put?: never;
+        /** Create Recurring */
+        post: operations["create_recurring_api_v1_recurring_charges_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/recurring-charges/{rule_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update Recurring */
+        put: operations["update_recurring_api_v1_recurring_charges__rule_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/owner-finances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Owner Finances */
+        get: operations["owner_finances_api_v1_owner_finances_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -701,7 +908,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "rent" | "water" | "service" | "deposit" | "opening" | "adjustment";
+            kind: "rent" | "water" | "garbage" | "service" | "deposit" | "opening" | "adjustment";
             /** Description */
             description: string;
             /** Amount */
@@ -851,6 +1058,21 @@ export interface components {
              */
             priority: "low" | "normal" | "high" | "urgent";
         };
+        /** MaintenanceOptionOut */
+        MaintenanceOptionOut: {
+            /** Id */
+            id: string;
+            /** Tenant Name */
+            tenant_name: string;
+            /** Unit */
+            unit: string;
+            /** Unit Id */
+            unit_id: string;
+            /** Property Id */
+            property_id: string;
+            /** Property Name */
+            property_name: string;
+        };
         /** MaintenanceOut */
         MaintenanceOut: {
             /** Id */
@@ -859,6 +1081,14 @@ export interface components {
             property_id: string;
             /** Tenancy Id */
             tenancy_id: string | null;
+            /** Tenant Name */
+            tenant_name: string | null;
+            /** Unit */
+            unit: string | null;
+            /** Property Name */
+            property_name: string;
+            /** Provider Id */
+            provider_id: string | null;
             /** Title */
             title: string;
             /** Description */
@@ -892,6 +1122,8 @@ export interface components {
              * @default
              */
             assigned_to: string;
+            /** Provider Id */
+            provider_id?: string | null;
             /**
              * Cost
              * @default 0
@@ -915,6 +1147,156 @@ export interface components {
             timezone: string;
             /** Demo */
             demo: boolean;
+        };
+        /** OutgoingPaymentIn */
+        OutgoingPaymentIn: {
+            /** Amount */
+            amount: number;
+            /**
+             * Paid On
+             * Format: date
+             */
+            paid_on: string;
+            /**
+             * Method
+             * @enum {string}
+             */
+            method: "bank" | "mpesa" | "cash" | "cheque";
+            /**
+             * Reference
+             * @default
+             */
+            reference: string;
+            /** Idempotency Key */
+            idempotency_key: string;
+        };
+        /** OutgoingPaymentOut */
+        OutgoingPaymentOut: {
+            /** Id */
+            id: string;
+            /** Amount */
+            amount: number;
+            /**
+             * Paid On
+             * Format: date
+             */
+            paid_on: string;
+            /** Method */
+            method: string;
+            /** Reference */
+            reference: string;
+            /** Reversed At */
+            reversed_at: string | null;
+            /** Reversal Reason */
+            reversal_reason: string | null;
+        };
+        /** OwnerFinanceOut */
+        OwnerFinanceOut: {
+            /** Period */
+            period: string;
+            /** Inflows */
+            inflows: number;
+            /** Service Paid */
+            service_paid: number;
+            /** Operating Paid */
+            operating_paid: number;
+            /** Tax Paid */
+            tax_paid: number;
+            /** Loan Paid */
+            loan_paid: number;
+            /** Owner Use Paid */
+            owner_use_paid: number;
+            /** Net Movement */
+            net_movement: number;
+            /** Outstanding */
+            outstanding: number;
+            /** Overdue */
+            overdue: number;
+        };
+        /** PayableIn */
+        PayableIn: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "service" | "operating" | "tax" | "loan" | "owner_use";
+            /** Property Id */
+            property_id?: string | null;
+            /** Provider Id */
+            provider_id?: string | null;
+            /** Maintenance Id */
+            maintenance_id?: string | null;
+            /** Description */
+            description: string;
+            /**
+             * Reference
+             * @default
+             */
+            reference: string;
+            /** Amount */
+            amount: number;
+            /**
+             * Issued On
+             * Format: date
+             */
+            issued_on: string;
+            /**
+             * Due Date
+             * Format: date
+             */
+            due_date: string;
+            /** Idempotency Key */
+            idempotency_key: string;
+        };
+        /** PayableOut */
+        PayableOut: {
+            /** Id */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "service" | "operating" | "tax" | "loan" | "owner_use";
+            /** Property Id */
+            property_id: string | null;
+            /** Property Name */
+            property_name: string | null;
+            /** Provider Id */
+            provider_id: string | null;
+            /** Provider Name */
+            provider_name: string | null;
+            /** Maintenance Id */
+            maintenance_id: string | null;
+            /** Description */
+            description: string;
+            /** Reference */
+            reference: string;
+            /** Amount */
+            amount: number;
+            /** Paid */
+            paid: number;
+            /** Balance */
+            balance: number;
+            /**
+             * Issued On
+             * Format: date
+             */
+            issued_on: string;
+            /**
+             * Due Date
+             * Format: date
+             */
+            due_date: string;
+            /** Last Paid On */
+            last_paid_on: string | null;
+            /** Overdue */
+            overdue: boolean;
+            /** Voided At */
+            voided_at: string | null;
+            /** Void Reason */
+            void_reason: string | null;
+            /** Payments */
+            payments: components["schemas"]["OutgoingPaymentOut"][];
         };
         /** PaymentIn */
         PaymentIn: {
@@ -1029,6 +1411,90 @@ export interface components {
             /** Outstanding */
             outstanding: number | null;
         };
+        /** ProviderIn */
+        ProviderIn: {
+            /** Name */
+            name: string;
+            /** Trade */
+            trade: string;
+            /**
+             * Contact Name
+             * @default
+             */
+            contact_name: string;
+            /**
+             * Phone
+             * @default
+             */
+            phone: string;
+            /**
+             * Email
+             * @default
+             */
+            email: string;
+            /**
+             * Address
+             * @default
+             */
+            address: string;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /**
+             * Active
+             * @default true
+             */
+            active: boolean;
+        };
+        /** ProviderOut */
+        ProviderOut: {
+            /** Name */
+            name: string;
+            /** Trade */
+            trade: string;
+            /**
+             * Contact Name
+             * @default
+             */
+            contact_name: string;
+            /**
+             * Phone
+             * @default
+             */
+            phone: string;
+            /**
+             * Email
+             * @default
+             */
+            email: string;
+            /**
+             * Address
+             * @default
+             */
+            address: string;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /**
+             * Active
+             * @default true
+             */
+            active: boolean;
+            /** Id */
+            id: string;
+            /** Billed */
+            billed: number | null;
+            /** Paid */
+            paid: number | null;
+            /** Balance */
+            balance: number | null;
+            /** Last Paid On */
+            last_paid_on: string | null;
+        };
         /** Reason */
         Reason: {
             /** Reason */
@@ -1066,6 +1532,64 @@ export interface components {
              */
             email: string;
         };
+        /** RecurringChargeIn */
+        RecurringChargeIn: {
+            /** Tenancy Id */
+            tenancy_id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "water" | "garbage" | "service";
+            /** Description */
+            description: string;
+            /** Amount */
+            amount: number;
+            /**
+             * Due Day
+             * @default 5
+             */
+            due_day: number;
+            /** Start Period */
+            start_period: string;
+            /** End Period */
+            end_period?: string | null;
+            /**
+             * Active
+             * @default true
+             */
+            active: boolean;
+        };
+        /** RecurringChargeOut */
+        RecurringChargeOut: {
+            /** Tenancy Id */
+            tenancy_id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "water" | "garbage" | "service";
+            /** Description */
+            description: string;
+            /** Amount */
+            amount: number;
+            /**
+             * Due Day
+             * @default 5
+             */
+            due_day: number;
+            /** Start Period */
+            start_period: string;
+            /** End Period */
+            end_period?: string | null;
+            /**
+             * Active
+             * @default true
+             */
+            active: boolean;
+            /** Id */
+            id: string;
+        };
         /** Redeem */
         Redeem: {
             /** Token */
@@ -1074,6 +1598,61 @@ export interface components {
             name: string;
             /** Password */
             password: string;
+        };
+        /** RentalOut */
+        RentalOut: {
+            /** Id */
+            id: string;
+            /** Unit Id */
+            unit_id: string;
+            /** Tenant Id */
+            tenant_id: string;
+            /** Reference */
+            reference: string;
+            /** Rent */
+            rent: number;
+            /** Deposit */
+            deposit: number;
+            /** Due Day */
+            due_day: number;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /** End Date */
+            end_date: string | null;
+            /** Status */
+            status: string;
+            /** Property Id */
+            property_id: string;
+            /** Property Name */
+            property_name: string;
+            /** Location */
+            location: string;
+            /** County */
+            county: string;
+            /** Contact */
+            contact: string;
+            /** Number */
+            number: string;
+            /** Building */
+            building: string;
+            /** Floor */
+            floor: string;
+            /** Unit Type */
+            unit_type: string;
+            /**
+             * Usage
+             * @enum {string}
+             */
+            usage: "residential" | "commercial";
+            /** Currency */
+            currency: string;
+            /** Outstanding */
+            outstanding: number;
+            /** Overdue */
+            overdue: number;
         };
         /** SessionOut */
         SessionOut: {
@@ -1207,6 +1786,12 @@ export interface components {
              * @default Residential
              */
             unit_type: string;
+            /**
+             * Usage
+             * @default residential
+             * @enum {string}
+             */
+            usage: "residential" | "commercial";
             /** Default Rent */
             default_rent: number;
         };
@@ -1224,6 +1809,11 @@ export interface components {
             floor: string;
             /** Unit Type */
             unit_type: string;
+            /**
+             * Usage
+             * @enum {string}
+             */
+            usage: "residential" | "commercial";
             /** Default Rent */
             default_rent: number;
             /** Occupied */
@@ -1805,6 +2395,41 @@ export interface operations {
             };
         };
     };
+    update_unit_api_v1_units__unit_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                unit_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UnitIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     tenants_api_v1_tenants_get: {
         parameters: {
             query?: {
@@ -1918,6 +2543,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rentals_api_v1_rentals_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RentalOut"][];
                 };
             };
         };
@@ -2458,6 +3103,26 @@ export interface operations {
             };
         };
     };
+    maintenance_options_api_v1_maintenance_options_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MaintenanceOptionOut"][];
+                };
+            };
+        };
+    };
     update_maintenance_api_v1_maintenance__request_id__post: {
         parameters: {
             query?: never;
@@ -2564,6 +3229,371 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    providers_api_v1_providers_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProviderOut"][];
+                };
+            };
+        };
+    };
+    create_provider_api_v1_providers_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProviderIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_provider_api_v1_providers__provider_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProviderIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    payables_api_v1_payables_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayableOut"][];
+                };
+            };
+        };
+    };
+    create_payable_api_v1_payables_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PayableIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayableOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    pay_payable_api_v1_payables__payable_id__payments_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                payable_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OutgoingPaymentIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayableOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    void_payable_api_v1_payables__payable_id__void_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                payable_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Reason"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reverse_outgoing_api_v1_outgoing_payments__payment_id__reverse_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                payment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Reason"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    recurring_charges_api_v1_recurring_charges_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecurringChargeOut"][];
+                };
+            };
+        };
+    };
+    create_recurring_api_v1_recurring_charges_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecurringChargeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_recurring_api_v1_recurring_charges__rule_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rule_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecurringChargeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    owner_finances_api_v1_owner_finances_get: {
+        parameters: {
+            query: {
+                period: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OwnerFinanceOut"];
                 };
             };
             /** @description Validation Error */

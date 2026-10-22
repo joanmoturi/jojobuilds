@@ -1,4 +1,4 @@
-import { canMaintain, money } from "@jojobuilds/api-client";
+import { canFinance, canMaintain, money } from "@jojobuilds/api-client";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Linking, Text, View } from "react-native";
@@ -27,6 +27,27 @@ export default function More() {
   const refresh = useRefresh();
   return (
     <Screen title="Everything else, in reach." onRefresh={refresh}>
+      {org && (canFinance(org.role) || canMaintain(org.role)) && (
+        <Button
+          label="Service providers & bills"
+          secondary
+          onPress={() => router.push({ pathname: "/finance", params: { section: "providers" } })}
+        />
+      )}
+      {org && canFinance(org.role) && (
+        <Button
+          label="Recurring & variable tenant bills"
+          secondary
+          onPress={() => router.push({ pathname: "/finance", params: { section: "bills" } })}
+        />
+      )}
+      {org?.role === "owner" && (
+        <Button
+          label="Private owner finances"
+          secondary
+          onPress={() => router.push({ pathname: "/finance", params: { section: "owner" } })}
+        />
+      )}
       <View style={styles.metrics}>
         {(["maintenance", "notifications", "settings"] as const).map((tab) => (
           <View key={tab} style={{ flex: 1 }}>
@@ -59,6 +80,12 @@ export default function More() {
                   <Tag text={r.priority} tone={r.priority === "urgent" ? "red" : "neutral"} />
                 </View>
                 <Text style={styles.text}>{r.description}</Text>
+                <Text style={styles.muted}>
+                  {r.property_name} ·{" "}
+                  {r.tenant_name
+                    ? `${r.tenant_name} · Unit ${r.unit}`
+                    : "Common area / no tenant linked"}
+                </Text>
                 <Tag
                   text={r.status.replaceAll("_", " ")}
                   tone={["resolved", "closed"].includes(r.status) ? "green" : "neutral"}
