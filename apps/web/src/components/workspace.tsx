@@ -43,6 +43,8 @@ import { WorkspaceForm } from "./workspace-forms";
 import { FinanceForm, isFinanceForm } from "./finance-form";
 import { OwnerFinancesPanel, ProvidersPanel, RecurringChargesPanel } from "./finance-panels";
 import { ErrorBox, Field, Loading } from "./ui";
+import { CoordinationPanel, GoogleButton, ProviderWorkspace } from "./coordination-panels";
+import { MessagingPanel } from "./messaging-panel";
 
 export type Api = ReturnType<typeof createApi>;
 export interface WorkspaceContext {
@@ -64,6 +66,8 @@ export type Tab =
   | "bills"
   | "owner-finances"
   | "notifications"
+  | "balances"
+  | "messages"
   | "settings";
 const navigation = [
   { key: "overview", label: "Overview", icon: LayoutDashboard },
@@ -75,6 +79,8 @@ const navigation = [
   { key: "bills", label: "Recurring bills", icon: Wallet },
   { key: "owner-finances", label: "Owner finances", icon: ShieldCheck },
   { key: "notifications", label: "Notifications", icon: Bell },
+  { key: "balances", label: "Tenant balances", icon: Wallet },
+  { key: "messages", label: "Messages", icon: Bell },
 ] as const;
 const tenantLabels: Partial<Record<Tab, string>> = {
   overview: "My home",
@@ -106,12 +112,29 @@ export function Workspace() {
 
 function SessionGate() {
   const queryClient = useQueryClient();
+  const [serviceMode, setServiceMode] = useState(false);
+  const [invitation, setInvitation] = useState("");
+  const [invitationError, setInvitationError] = useState("");
+  const [googleError, setGoogleError] = useState(false);
   const api = useMemo(() => createApi({ baseUrl: "/api/v1" }), []);
   const session = useQuery({
     queryKey: ["session"],
     queryFn: () => api.request<Session>("/auth/session"),
     retry: false,
   });
+  useEffect(() => {
+    if (!session.data) return;
+    const query = new URLSearchParams(window.location.search);
+    if (query.has("auth_error")) {
+      window.history.replaceState(null, "", "/");
+      queueMicrotask(() => setGoogleError(true));
+    }
+    const token = query.get("invite");
+    if (token) {
+      window.history.replaceState(null, "", "/");
+      queueMicrotask(() => setInvitation(token));
+    }
+  }, [session.data]);
   if (session.isPending)
     return (
       <main className="boot">
@@ -130,6 +153,54 @@ function SessionGate() {
   }
   if (!session.data)
     return <Login api={api} onLogin={(data) => queryClient.setQueryData(["session"], data)} />;
+  if (googleError)
+    return (
+      <main className="boot">
+        <ErrorBox message="Google connection was not completed. Use the matching Google email, or continue with your current sign-in." />
+        <button className="button secondary" onClick={() => setGoogleError(false)}>
+          Return to workspace
+        </button>
+      </main>
+    );
+  if (invitation)
+    return (
+      <main className="boot">
+        <h1>Accept your invitation</h1>
+        <p>Accept as {session.data.email}.</p>
+        {invitationError && <ErrorBox message={invitationError} />}
+        <button
+          className="button primary"
+          onClick={async () => {
+            try {
+              const invitedApi = createApi({
+                baseUrl: "/api/v1",
+                headers: () => ({ "X-CSRF-Token": session.data.csrf }),
+              });
+              await invitedApi.post("/auth/accept-invitation", { reason: invitation });
+              await session.refetch();
+              await queryClient.invalidateQueries({ queryKey: ["provider-portal"] });
+              setInvitation("");
+            } catch (problem) {
+              setInvitationError(
+                problem instanceof Error ? problem.message : "Invitation could not be accepted.",
+              );
+            }
+          }}
+        >
+          Accept invitation
+        </button>
+        <button className="button secondary" onClick={() => setInvitation("")}>
+          Cancel
+        </button>
+      </main>
+    );
+  if (session.data.provider_access && (serviceMode || !session.data.organizations.length))
+    return (
+      <ProviderWorkspace
+        session={session.data}
+        onWorkspace={session.data.organizations.length ? () => setServiceMode(false) : undefined}
+      />
+    );
   if (!session.data.organizations.length)
     return (
       <main className="boot">
@@ -147,7 +218,12 @@ function SessionGate() {
         </button>
       </main>
     );
-  return <AuthenticatedWorkspace session={session.data} />;
+  return (
+    <AuthenticatedWorkspace
+      session={session.data}
+      onService={session.data.provider_access ? () => setServiceMode(true) : undefined}
+    />
+  );
 }
 
 function Login({ api, onLogin }: { api: Api; onLogin: (session: Session) => void }) {
@@ -159,6 +235,14 @@ function Login({ api, onLogin }: { api: Api; onLogin: (session: Session) => void
   const [notice, setNotice] = useState("");
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
+    if (query.has("auth_error")) {
+      window.history.replaceState(null, "", "/");
+      queueMicrotask(() =>
+        setError(
+          "Google sign-in was not completed. For an existing password account, sign in and use Connect Google account first. New users need a matching invitation.",
+        ),
+      );
+    }
     const action = query.get("invite") || query.get("reset");
     if (action) {
       // Tokens leave browser history immediately and are never persisted in local storage.
@@ -304,6 +388,9 @@ function Login({ api, onLogin }: { api: Api; onLogin: (session: Session) => void
             <ArrowUpRight size={17} />
           </button>
         </form>
+        {mode !== "recover" && (
+          <GoogleButton api={api} invitation={invitation ? token : undefined} />
+        )}
         <button
           className="text-button"
           onClick={() => {
@@ -325,12 +412,22 @@ function Login({ api, onLogin }: { api: Api; onLogin: (session: Session) => void
   );
 }
 
-function AuthenticatedWorkspace({ session }: { session: Session }) {
+function AuthenticatedWorkspace({
+  session,
+  onService,
+}: {
+  session: Session;
+  onService?: () => void;
+}) {
   const queryClient = useQueryClient();
   const [orgId, setOrgId] = useState(session.organizations[0].id);
   const org = session.organizations.find((item) => item.id === orgId) ?? session.organizations[0];
   const [tab, setTab] = useState<Tab>(
-    ["caretaker", "maintenance", "agent"].includes(org.role) ? "properties" : "overview",
+    org.role === "manager"
+      ? "balances"
+      : ["caretaker", "maintenance", "agent"].includes(org.role)
+        ? "properties"
+        : "overview",
   );
   const [period, setPeriod] = useState(() =>
     new Date().toLocaleDateString("en-CA", { timeZone: org.timezone }).slice(0, 7),
@@ -365,6 +462,7 @@ function AuthenticatedWorkspace({ session }: { session: Session }) {
       (item.key !== "providers" ||
         ["owner", "manager", "finance", "caretaker", "maintenance"].includes(role)) &&
       (item.key !== "bills" || canFinance(role) || tenant) &&
+      (item.key !== "balances" || role === "manager") &&
       (item.key !== "owner-finances" || role === "owner"),
   );
   const current = allowed.find((item) => item.key === tab);
@@ -436,6 +534,11 @@ function AuthenticatedWorkspace({ session }: { session: Session }) {
           ))}
         </nav>
         <div className="sidebar-bottom">
+          {onService && (
+            <button className="button secondary" onClick={onService}>
+              My service work
+            </button>
+          )}
           <div className="calm-note">
             <span className="mini-star">✧</span>
             <strong>A little more peace of mind.</strong>
@@ -570,6 +673,24 @@ function AuthenticatedWorkspace({ session }: { session: Session }) {
           {tab === "bills" && <RecurringChargesPanel ctx={ctx} />}
           {tab === "owner-finances" && role === "owner" && <OwnerFinancesPanel ctx={ctx} />}
           {tab === "notifications" && <NotificationsPanel ctx={ctx} />}
+          {tab === "balances" && role === "manager" && <CoordinationPanel ctx={ctx} balancesOnly />}
+          {tab === "messages" && (
+            <>
+              <MessagingPanel
+                key={ctx.org.id}
+                api={ctx.api}
+                orgId={ctx.org.id}
+                owner={role === "owner"}
+              />
+              {["owner", "manager", "tenant"].includes(role) && (
+                <details>
+                  <summary>Tenant notices and email history</summary>
+                  <CoordinationPanel ctx={ctx} />
+                </details>
+              )}
+            </>
+          )}
+          {tab === "settings" && <GoogleButton api={api} connect />}
           {tab === "settings" && <SettingsPanel ctx={ctx} />}
           <footer className="content-footer">
             <span>

@@ -41,7 +41,7 @@ router = APIRouter(prefix="/api/v1", tags=["finance"])
 
 
 def financial_access(ctx: Context):
-    if ctx.member.role not in ("owner", "manager", "finance", "tenant"):
+    if ctx.member.role not in ("owner", "finance", "tenant"):
         raise HTTPException(403, "Financial records are restricted")
 
 

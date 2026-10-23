@@ -78,6 +78,34 @@ cannot reuse the same key. Original bill and payment records remain immutable
 through the API. Reversals retain amount/reference/history with a reason.
 Only an unpaid bill can be voided, and voided bills cannot receive payments.
 
+### Provider quotations and invoices
+
+An assigned provider can submit an itemized quotation after accepting an open
+job. Quantities are positive whole numbers; unit prices and the server-calculated
+total are positive integer minor units. Explicit item lines represent any fees
+or taxes; there is no automatic tax calculation.
+
+Only the owner approves or rejects these documents. Approval creates one ordinary
+unpaid service payable with an issue date of approval and a due date based on the
+quotation's payment terms. An approved quotation is an obligation, not cash paid.
+Submitted/approved documents cannot be edited; a rejection permits a new immutable
+revision, retaining prior submissions and review notes.
+
+The provider may submit an invoice against that approved quotation. Its items,
+amount and currency come from the quotation; the provider supplies the reference,
+actual issue date and notes. Invoice approval adds its reference to the existing
+payable without changing the approved amount, original bill dates or payment
+history. It never creates a second liability. Duplicate references and voided
+quotation bills are rejected.
+
+Provider service views derive `awaiting_payment`, `partially_paid`, `paid` or
+`voided` from approved service bills and non-reversed outgoing payments.
+Unapproved quotations do not appear as approved bills. Payment reversal can move
+a fully paid service back to pending. Active provider relationships retain their
+own service payment history after job reassignment, without exposing other
+suppliers' records or owner-private obligations. Managers cannot read document
+amounts or approve them; owner/finance payment-recording permissions are unchanged.
+
 Maintenance `cost` is reference information, not a bill or payment; it is never
 added to cash outflow totals. A linked payable/outgoing payment supplies the
 actual financial record. Supplier owed and last-paid aggregates exclude voided

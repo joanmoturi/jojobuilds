@@ -121,6 +121,16 @@ def session_view(db: Session, user: m.User, session: m.AuthSession, token=None):
         email=user.email,
         csrf=session.csrf,
         token=token,
+        provider_access=db.scalar(
+            select(m.ProviderAccess.id)
+            .join(m.ServiceProvider)
+            .where(
+                m.ProviderAccess.user_id == user.id,
+                m.ProviderAccess.active.is_(True),
+                m.ServiceProvider.active.is_(True),
+            )
+        )
+        is not None,
         organizations=[
             dict(
                 id=o.id,
@@ -135,9 +145,32 @@ def session_view(db: Session, user: m.User, session: m.AuthSession, token=None):
     )
 
 
+def provider_links(db: Session, user_id: str):
+    return list(
+        db.scalars(
+            select(m.ProviderAccess)
+            .join(m.ServiceProvider)
+            .where(
+                m.ProviderAccess.user_id == user_id,
+                m.ProviderAccess.active.is_(True),
+                m.ServiceProvider.active.is_(True),
+            )
+        )
+    )
+
+
 PERMISSIONS = {
-    "owner": {"manage", "finance", "maintain", "invite", "tenant_manage"},
-    "manager": {"manage", "finance", "maintain", "tenant_manage"},
+    "owner": {
+        "manage",
+        "finance",
+        "maintain",
+        "invite",
+        "tenant_manage",
+        "coordinate",
+        "communicate",
+        "balances",
+    },
+    "manager": {"maintain", "coordinate", "communicate", "balances"},
     "agent": {"tenant_manage"},
     "finance": {"finance"},
     "caretaker": {"maintain"},

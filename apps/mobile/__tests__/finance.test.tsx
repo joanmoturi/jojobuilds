@@ -44,6 +44,7 @@ const resources: Partial<Queries> = {
     {
       id: "provider",
       name: "Example Plumber",
+      portal_access: false,
       trade: "Plumbing",
       contact_name: "Example Contact",
       phone: "+254000000000",

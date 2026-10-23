@@ -365,6 +365,34 @@ clean approved production portfolio or design/test a separately reviewed data
 migration and reconciliation process. Do not assume copying a `.db` file into a
 PostgreSQL service imports it.
 
+## Optional Google sign-in
+
+Password sign-in remains available. Google login/linking is implemented for the
+website but stays disabled unless both server-only `GOOGLE_CLIENT_ID` and
+`GOOGLE_CLIENT_SECRET` are configured. No live Google authentication has been
+verified without operator-provided credentials.
+
+1. Create/configure a Google OAuth web application in your authorized Google
+   Cloud project and configure its consent screen/test-user or publishing access.
+2. Register the exact callback formed from `WEB_ORIGIN` and
+   `/api/v1/auth/google/callback`. For the documented local website this is
+   `http://localhost:3000/api/v1/auth/google/callback`; production uses your
+   HTTPS website origin. Keep hostname, port and scheme consistent.
+3. Supply the ID and secret through the API environment/secret manager, not
+   `NEXT_PUBLIC_` or `EXPO_PUBLIC_` variables. Leave both empty to disable Google.
+   Restart the API and verify `/api/v1/auth/google/status`.
+4. For an existing password account, sign in normally, open Settings and choose
+   **Connect Google account** with the matching email. Providers have the same
+   connect action in their portal. Matching email alone never links an account.
+5. Exercise a real invited account, returning login, rejection/cancel and logout
+   on staging before allowing public use. New Google users need a matching
+   invitation; there is no open account/organization signup.
+
+The API redacts callback queries from its Uvicorn access logs. Configure every
+upstream reverse proxy, tracing system and hosting access log to omit/redact
+OAuth callback query parameters too; authorization codes must not be retained
+in logs. Native Google sign-in is not implemented.
+
 ## Official references
 
 - [Next.js self-hosting and reverse proxies](https://nextjs.org/docs/app/guides/self-hosting)

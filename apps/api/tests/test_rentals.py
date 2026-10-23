@@ -244,12 +244,12 @@ def test_editing_unit_specification_preserves_agreed_rent_and_bills(client, port
         json={"email": "manager@example.com", "password": "synthetic-rental-password"},
     )
     client.headers["X-CSRF-Token"] = login.json()["csrf"]
-    assert client.put(f"/api/v1/units/{portfolio['unit']}", json=body).status_code == 200
+    assert client.put(f"/api/v1/units/{portfolio['unit']}", json=body).status_code == 403
     assert (
         client.put(
             f"/api/v1/units/{other_unit_id}", json={**body, "property_id": other_property_id}
         ).status_code
-        == 404
+        == 403
     )
 
 

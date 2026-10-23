@@ -17,6 +17,15 @@ export type Payable = components["schemas"]["PayableOut"];
 export type RecurringCharge = components["schemas"]["RecurringChargeOut"];
 export type OwnerFinances = components["schemas"]["OwnerFinanceOut"];
 export type PaymentInput = components["schemas"]["PaymentIn"];
+export type TenantBalance = components["schemas"]["TenantBalanceOut"];
+export type TenantMessage = components["schemas"]["TenantMessageOut"];
+export type ProviderPortal = components["schemas"]["ProviderPortalOut"];
+export type ProviderJob = components["schemas"]["ProviderJobOut"];
+export type MessageContact = components["schemas"]["MessageContactOut"];
+export type Conversation = components["schemas"]["ConversationOut"];
+export type ServiceWork = components["schemas"]["ServiceWorkOut"];
+export type ServiceDocument = components["schemas"]["ServiceDocumentOut"];
+export type ProviderService = components["schemas"]["ProviderServiceOut"];
 export type Role = Organization["role"];
 
 export interface Notice {
@@ -95,6 +104,8 @@ export interface Queries {
   integrations: Integration[];
   members: Member[];
   audit: AuditEvent[];
+  "tenant-balances": TenantBalance[];
+  "tenant-messages": TenantMessage[];
 }
 export class ApiError extends Error {
   constructor(
@@ -206,8 +217,8 @@ export function parseOptionalMoney(value: string, fallback = 0): number {
   return parseMoney(text);
 }
 
-export const canFinance = (role: Role) => ["owner", "manager", "finance"].includes(role);
-export const canManage = (role: Role) => ["owner", "manager"].includes(role);
-export const canManageTenants = (role: Role) => ["owner", "manager", "agent"].includes(role);
+export const canFinance = (role: Role) => ["owner", "finance"].includes(role);
+export const canManage = (role: Role) => role === "owner";
+export const canManageTenants = (role: Role) => ["owner", "agent"].includes(role);
 export const canMaintain = (role: Role) =>
   ["owner", "manager", "caretaker", "maintenance"].includes(role);

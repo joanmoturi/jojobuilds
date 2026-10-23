@@ -1,5 +1,22 @@
 # Testing
 
+Operations-access regressions cover manager read-only balances and denied
+financial/document paths, scoped tenant messages/channel states, provider
+invitation reuse across landlords, assignment actions/retries and revocation.
+Chromium exercises new-provider onboarding, a second landlord invitation while
+signed in, accept/decline/progress and manager messaging. Google tests mock
+external exchange/identity verification; they do not establish live Google
+availability. Configure and exercise actual Google credentials separately.
+
+Shared-inbox regressions cover role-specific recipients, participant replies,
+owner read-only oversight, cross-organization denial, revoked memberships,
+assignment removal and provider reassignment/revocation. Billing tests cover
+itemized total limits, rejected revisions, owner-only reviews, quote/invoice
+idempotency, reference collisions, one-liability approval, partial/full payments,
+reversals and voided bills. Migration tests upgrade populated legacy records,
+downgrade, re-upgrade and verify foreign keys. Native shared messaging uses
+the same API; physical Android testing remains a separate gate.
+
 From the repository root:
 
 ```powershell
@@ -44,21 +61,25 @@ Do not replace a failed integration with a mock and call it passing.
 
 ## Verified local baseline
 
-| Check                               | Actual result                                                                            |
-| ----------------------------------- | ---------------------------------------------------------------------------------------- |
-| OpenAPI generation                  | Passed; shared contract regenerated from backend                                         |
-| TypeScript                          | Web and Android passed strict typechecks                                                 |
-| ESLint                              | Web and Android passed without warnings                                                  |
-| Ruff                                | Application, tests and migrations passed lint and formatting                             |
-| Pytest                              | 31 passed against disposable SQLite databases                                            |
-| Vitest                              | 9 passed                                                                                 |
-| Jest / React Native Testing Library | 7 passed                                                                                 |
-| Next.js production build            | Passed with Next.js 16.4.1 and standalone output                                         |
-| Playwright Chromium                 | 6 passed against migrated FastAPI + SQLite, no mocked financial API                      |
-| Android Metro/Hermes export         | Passed after route move to `src/app` and branded asset generation                        |
-| Alembic model drift                 | `alembic check`: no new upgrade operations                                               |
-| Migrated financial checks           | Named positive-amount/rent/deposit/due-day checks inspected on all five financial tables |
-| Dependency audit                    | NOT clear: 54 non-development graph findings, including 40 high; see SECURITY            |
+Updated October 24, 2026. Current automated results include the shared inbox and
+provider quotation/invoice workflows. Earlier environment-only checks are marked
+separately; this is not a production-readiness certification.
+
+| Check                               | Actual result                                                                                                 |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| OpenAPI generation                  | Passed; shared contract regenerated from backend                                                              |
+| TypeScript                          | Web and Android passed strict typechecks                                                                      |
+| ESLint                              | Web and Android passed without warnings                                                                       |
+| Ruff                                | Application, tests and migrations passed lint and formatting                                                  |
+| Pytest                              | 50 passed against disposable SQLite databases                                                                 |
+| Vitest                              | 9 passed                                                                                                      |
+| Jest / React Native Testing Library | 9 passed, including message retries and read-only owner oversight                                             |
+| Next.js production build            | Passed with Next.js 16.4.1 and standalone output                                                              |
+| Playwright Chromium                 | 8 passed against migrated FastAPI + SQLite, including provider quote/invoice/payment flow and owner oversight |
+| Android Metro/Hermes export         | Earlier baseline passed; not re-exported for the shared-inbox update                                          |
+| Alembic model drift                 | `alembic check`: no new upgrade operations                                                                    |
+| Migrated financial checks           | Named positive-amount/rent/deposit/due-day checks inspected on all five financial tables                      |
+| Dependency audit                    | Earlier audit remains unresolved; not refreshed for this update. See SECURITY                                 |
 
 The browser journey creates a property, unit, tenant and tenancy; bills rent;
 records a partial payment; imports/maps/previews a CSV; explicitly reconciles the
@@ -86,6 +107,15 @@ submitted payloads to ensure hidden selections are discarded. Backend tests
 redeem real invitations and verify role-specific tenant links/assignments.
 Synthetic staff setup covers all five staff roles, real-portfolio refusal and
 selected-property isolation; Chromium signs in with an actual manager account.
+
+The provider journey submits an itemized quotation, approves it in a separate
+owner browser context, submits/approves an invoice and confirms the payable count
+does not increase. It records a synthetic outgoing payment and checks the provider's
+paid-service view and private management conversation. Separate manager/tenant
+contexts exchange replies, then an owner observes the thread without a reply
+control. A backend regression reads from a second database connection before a
+write handler returns to verify persistence is not delayed until after a success
+response.
 
 Rental checks cover several units for the same tenant/property, a commercial
 agreement, ended-agreement history followed by another occupant, agreed versus

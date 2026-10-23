@@ -103,7 +103,7 @@ def payable_view(db: Session, ctx: Context, record: m.Payable):
 @router.get("/providers", response_model=list[s.ProviderOut])
 def providers(ctx: Context = Depends(context), db: Session = Depends(get_db)):
     provider_access(ctx)
-    financial = ctx.member.role in ("owner", "manager", "finance")
+    financial = ctx.member.role in ("owner", "finance")
     result = []
     for provider in db.scalars(
         select(m.ServiceProvider)
@@ -132,6 +132,13 @@ def providers(ctx: Context = Depends(context), db: Session = Depends(get_db)):
         result.append(
             dict(
                 id=provider.id,
+                portal_access=db.scalar(
+                    select(m.ProviderAccess.id).where(
+                        m.ProviderAccess.provider_id == provider.id,
+                        m.ProviderAccess.active.is_(True),
+                    )
+                )
+                is not None,
                 **{field: getattr(provider, field) for field in s.ProviderIn.model_fields},
                 billed=billed,
                 paid=paid,
@@ -164,6 +171,14 @@ def update_provider(
     require(ctx, "manage")
     record = provider_record(db, ctx, provider_id)
     for field, value in data.model_dump().items():
+        if field == "email" and value.lower() != record.email.lower():
+            link = db.scalar(
+                select(m.ProviderAccess).where(
+                    m.ProviderAccess.provider_id == provider_id, m.ProviderAccess.active.is_(True)
+                )
+            )
+            if link:
+                raise HTTPException(409, "Revoke provider access before changing the sign-in email")
         setattr(record, field, value)
     audit(db, ctx, "provider.updated", record.id)
     return {"id": record.id}

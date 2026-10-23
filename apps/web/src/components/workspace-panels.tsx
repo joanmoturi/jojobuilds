@@ -40,6 +40,7 @@ import {
 import { useState } from "react";
 import type { WorkspaceContext } from "./workspace";
 import { Badge, Empty, ErrorBox, Loading, SectionHead } from "./ui";
+import { ServiceWorkPanel } from "./service-work-panel";
 
 export type FormKind =
   | "property"
@@ -539,7 +540,7 @@ export function PropertiesPanel({ ctx }: { ctx: WorkspaceContext }) {
                                   <dt>Tenant</dt>
                                   <dd>{occupant?.tenant_name ?? "No active tenancy"}</dd>
                                 </div>
-                                {readLeases && (
+                                {readLeases && u.default_rent !== null && (
                                   <div>
                                     <dt>Default monthly rent</dt>
                                     <dd>{money(u.default_rent, ctx.org.currency)}</dd>
@@ -1450,8 +1451,22 @@ export function MaintenancePanel({ ctx }: { ctx: WorkspaceContext }) {
                 <small>{r.category}</small>
               </div>
               <p className="muted">Assigned to: {r.assigned_to || "Awaiting assignment"}</p>
+              {r.provider_id && r.provider_response && (
+                <p className="muted">Provider response: {r.provider_response}</p>
+              )}
+              {r.provider_note && (
+                <p className="muted">Private provider response: {r.provider_note}</p>
+              )}
               {r.cost !== null && (
                 <small className="muted">Recorded cost: {money(r.cost, ctx.org.currency)}</small>
+              )}
+              {ctx.org.role === "owner" && (
+                <ServiceWorkPanel api={ctx.api} requestId={r.id} owner />
+              )}
+              {["owner", "manager"].includes(ctx.org.role) && (
+                <button className="button secondary" onClick={() => ctx.navigate("messages")}>
+                  Open property messages
+                </button>
               )}
               {r.updates.length > 0 && (
                 <div className="request-history">

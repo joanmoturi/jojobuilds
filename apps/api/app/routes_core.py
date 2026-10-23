@@ -62,7 +62,7 @@ def properties(
         ).all()
         collected = sum(allocated(db, c.id) for c in charges)
         total = sum(c.amount for c in charges)
-        show_money = ctx.member.role in ("owner", "manager", "finance", "tenant")
+        show_money = ctx.member.role in ("owner", "finance", "tenant")
         result.append(
             dict(
                 id=prop.id,
@@ -138,7 +138,7 @@ def units(
             floor=u.floor,
             unit_type=u.unit_type,
             usage=u.usage,
-            default_rent=u.default_rent,
+            default_rent=None if ctx.member.role == "manager" else u.default_rent,
             occupied=u.id in active_units,
         )
         for u in db.scalars(query.limit(1000))
@@ -217,7 +217,7 @@ def create_tenant(data: s.TenantIn, ctx: Context = Depends(context), db: Session
 
 @router.get("/tenancies", response_model=list[s.TenancyOut])
 def tenancies(ctx: Context = Depends(context), db: Session = Depends(get_db)):
-    if ctx.member.role in ("caretaker", "maintenance"):
+    if ctx.member.role in ("caretaker", "maintenance", "manager"):
         raise HTTPException(403, "Financial tenancy records are restricted")
     return [
         dict(
@@ -337,10 +337,8 @@ def dashboard(
     ctx: Context = Depends(context),
     db: Session = Depends(get_db),
 ):
-    if ctx.member.role in ("caretaker", "maintenance", "agent"):
-        raise HTTPException(
-            403, "Financial dashboard is restricted to owner, manager, finance and tenants"
-        )
+    if ctx.member.role in ("caretaker", "maintenance", "agent", "manager"):
+        raise HTTPException(403, "Financial dashboard is restricted to owner, finance and tenants")
     ids = [t.id for t in visible_tenancies(db, ctx)]
     charges = db.scalars(
         select(m.Charge).where(m.Charge.tenancy_id.in_(ids), m.Charge.kind != "deposit")

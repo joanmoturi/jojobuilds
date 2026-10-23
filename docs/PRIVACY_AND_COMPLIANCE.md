@@ -20,8 +20,18 @@ Minimize collected information. This release does not collect identity numbers.
 Tenant contact data and documents must not be used for unrelated purposes.
 No uploaded financial data is intentionally sent to an AI service.
 
+The shared inbox is property-scoped, not confidential from the property owner.
+Owners can review tenant/manager and provider/manager conversations for their
+properties even when they are not participants; those oversight views are
+read-only. The interface and role guides disclose this behavior. Include the
+feature in your user onboarding and access review before using real conversations.
+Provider response notes are private from tenants, while job progress notes are
+tenant-visible; neither should be used to bypass the documented recipient scope.
+
 Create a documented operator retention policy for original statements, documents,
-audit events and expired auth records. Automated retention/deletion and full
+conversations, quotation/invoice revisions, audit events and expired auth records.
+Revoking access does not delete historical messages or financial documents.
+Automated retention/deletion and full
 data-subject request tooling are not implemented. Financial history cannot simply
 be deleted without considering applicable obligations.
 

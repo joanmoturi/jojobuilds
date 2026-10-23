@@ -148,7 +148,7 @@ class MaintenanceUpdate(Input):
     note: str = Field(min_length=3, max_length=1000)
     assigned_to: str = Field(default="", max_length=150)
     provider_id: str | None = None
-    cost: int = Field(default=0, ge=0, le=1_000_000_000)
+    cost: int | None = Field(default=None, ge=0, le=1_000_000_000)
 
 
 class OrganizationOut(BaseModel):
@@ -167,6 +167,7 @@ class SessionOut(BaseModel):
     csrf: str
     organizations: list[OrganizationOut]
     token: str | None = None
+    provider_access: bool = False
 
 
 class DashboardOut(BaseModel):
@@ -209,7 +210,7 @@ class UnitOut(BaseModel):
     floor: str
     unit_type: str
     usage: Literal["residential", "commercial"]
-    default_rent: int
+    default_rent: int | None
     occupied: bool
 
 
@@ -328,6 +329,8 @@ class MaintenanceOut(BaseModel):
     status: str
     assigned_to: str
     cost: int | None
+    provider_response: str | None = None
+    provider_note: str | None = None
     updates: list[UpdateOut]
     created_at: str
 
@@ -339,6 +342,196 @@ class MaintenanceOptionOut(BaseModel):
     unit_id: str
     property_id: str
     property_name: str
+
+
+class TenantMessageIn(Input):
+    tenancy_id: str
+    subject: str = Field(min_length=1, max_length=150)
+    body: str = Field(min_length=1, max_length=2000)
+    deliver_email: bool = True
+    idempotency_key: str = Field(min_length=16, max_length=100)
+
+
+class ProviderActionIn(Input):
+    action: Literal["accept", "decline", "progress"]
+    status: Literal["in_progress", "awaiting_parts", "resolved"] | None = None
+    note: str = Field(min_length=3, max_length=500)
+    idempotency_key: str = Field(min_length=16, max_length=100)
+
+
+class GoogleStart(Input):
+    invitation: str | None = Field(default=None, min_length=20, max_length=150)
+
+
+class TenantBalanceOut(BaseModel):
+    id: str
+    tenant_name: str
+    email: str
+    phone: str
+    reference: str
+    unit: str
+    property_name: str
+    balance: int
+    overdue: int
+    linked: bool
+    status: str
+
+
+class TenantMessageOut(BaseModel):
+    id: str
+    tenancy_id: str
+    subject: str
+    body: str
+    sender: str
+    property_name: str
+    unit: str
+    email_status: str
+    in_app: bool
+    created_at: str
+
+
+class ProviderLandlordOut(BaseModel):
+    id: str
+    name: str
+    landlord: str
+    demo: bool
+    currency: str
+
+
+class ProviderJobOut(BaseModel):
+    id: str
+    org_id: str
+    provider: str
+    title: str
+    description: str
+    category: str
+    priority: str
+    status: str
+    response: str
+    provider_note: str
+    property_name: str
+    location: str
+    contact: str
+    tenant_name: str | None
+    tenant_phone: str | None
+    unit: str | None
+    updates: list[UpdateOut]
+
+
+class ProviderPortalOut(BaseModel):
+    landlords: list[ProviderLandlordOut]
+    requests: list[ProviderJobOut]
+    services: list["ProviderServiceOut"]
+
+
+class MessageContactOut(BaseModel):
+    user_id: str
+    name: str
+    role: str
+    property_id: str
+    property_name: str
+    tenancy_id: str | None = None
+    request_id: str | None = None
+    provider_id: str | None = None
+    label: str
+
+
+class ConversationStart(Input):
+    org_id: str
+    property_id: str
+    recipient_id: str
+    tenancy_id: str | None = None
+    request_id: str | None = None
+    body: str = Field(min_length=1, max_length=2000)
+    idempotency_key: str = Field(min_length=16, max_length=100)
+
+
+class ConversationReply(Input):
+    body: str = Field(min_length=1, max_length=2000)
+    idempotency_key: str = Field(min_length=16, max_length=100)
+
+
+class ConversationMessageOut(BaseModel):
+    id: str
+    sender_id: str
+    sender: str
+    body: str
+    created_at: str
+
+
+class ConversationOut(BaseModel):
+    id: str
+    org_id: str
+    property_id: str
+    property_name: str
+    participants: list[str]
+    tenancy_id: str | None
+    request_id: str | None
+    provider_id: str | None
+    context_label: str
+    observer: bool
+    messages: list[ConversationMessageOut]
+
+
+class QuoteItem(Input):
+    description: str = Field(min_length=1, max_length=200)
+    quantity: int = Field(strict=True, ge=1, le=10000)
+    unit_price: Money
+
+
+class QuotationIn(Input):
+    items: list[QuoteItem] = Field(min_length=1, max_length=50)
+    terms_days: int = Field(default=14, strict=True, ge=0, le=365)
+    notes: str = Field(default="", max_length=1000)
+    idempotency_key: str = Field(min_length=16, max_length=100)
+
+    @model_validator(mode="after")
+    def total_limit(self):
+        if sum(item.quantity * item.unit_price for item in self.items) > 1_000_000_000_000:
+            raise ValueError("Quotation total exceeds the supported amount")
+        return self
+
+
+class ServiceInvoiceIn(Input):
+    quote_id: str
+    reference: str = Field(min_length=1, max_length=150)
+    issued_on: date
+    notes: str = Field(default="", max_length=1000)
+    idempotency_key: str = Field(min_length=16, max_length=100)
+
+
+class ServiceReview(Input):
+    decision: Literal["approve", "reject"]
+    note: str = Field(min_length=3, max_length=500)
+
+
+class ServiceDocumentOut(BaseModel):
+    id: str
+    request_id: str
+    provider_id: str
+    kind: Literal["quotation", "invoice"]
+    revision: int
+    quote_id: str | None
+    items: list[QuoteItem]
+    amount: int
+    currency: str
+    terms_days: int
+    reference: str
+    issued_on: date
+    notes: str
+    status: str
+    payable_id: str | None
+    review_note: str
+    created_at: str
+    reviewed_at: str | None
+
+
+class ServiceWorkOut(BaseModel):
+    currency: str
+    provider_id: str | None
+    accepted: bool
+    can_quote: bool
+    documents: list[ServiceDocumentOut]
 
 
 class RecurringChargeIn(Input):
@@ -375,6 +568,7 @@ class ProviderIn(Input):
 
 class ProviderOut(ProviderIn):
     id: str
+    portal_access: bool = False
     billed: int | None
     paid: int | None
     balance: int | None
@@ -441,6 +635,23 @@ class PayableOut(BaseModel):
     overdue: bool
     voided_at: str | None
     void_reason: str | None
+    payments: list[OutgoingPaymentOut]
+
+
+class ProviderServiceOut(BaseModel):
+    id: str
+    org_id: str
+    request_id: str | None
+    property_name: str
+    description: str
+    reference: str
+    currency: str
+    amount: int
+    paid: int
+    balance: int
+    status: Literal["awaiting_payment", "partially_paid", "paid", "voided"]
+    invoice_status: str | None
+    due_date: date
     payments: list[OutgoingPaymentOut]
 
 

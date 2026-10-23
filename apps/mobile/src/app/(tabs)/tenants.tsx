@@ -2,6 +2,7 @@ import { canFinance, money } from "@jojobuilds/api-client";
 import { useState } from "react";
 import { Text, View } from "react-native";
 import { useAuth } from "../../auth";
+import { Coordination } from "../../coordination";
 import {
   Card,
   EmptyState,
@@ -17,7 +18,12 @@ import {
 
 export default function Tenants() {
   const { org } = useAuth();
-  const permitted = !!org && ["owner", "manager", "agent", "finance"].includes(org.role);
+  return org?.role === "manager" ? <Coordination /> : <TenantDirectory />;
+}
+
+function TenantDirectory() {
+  const { org } = useAuth();
+  const permitted = !!org && ["owner", "agent", "finance"].includes(org.role);
   const tenants = useResource("tenants", permitted);
   const tenancies = useResource("tenancies", permitted);
   const units = useResource("units", permitted);

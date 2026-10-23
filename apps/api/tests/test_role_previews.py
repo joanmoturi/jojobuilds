@@ -24,9 +24,7 @@ def test_demo_staff_uses_real_role_and_only_selected_property(client, portfolio,
         portfolio["property"]
     ]
     assert client.get("/api/v1/owner-finances?period=2026-10").status_code == 403
-    assert client.get("/api/v1/charges").status_code == (
-        200 if role in ("manager", "finance") else 403
-    )
+    assert client.get("/api/v1/charges").status_code == (200 if role == "finance" else 403)
     with SessionLocal() as db:
         assert db.get(m.Tenant, portfolio["tenant"]).user_id is None
         owner = db.scalar(select(m.User).where(m.User.email == "owner@example.com"))

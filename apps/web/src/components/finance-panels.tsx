@@ -116,19 +116,48 @@ export function ProvidersPanel({ ctx }: { ctx: WorkspaceContext }) {
   const bills = useData(ctx, "payables", financial);
   const jobs = useData(ctx, "maintenance");
   const [selected, setSelected] = useState("");
+  const [accessNotice, setAccessNotice] = useState("");
+  const [accessError, setAccessError] = useState("");
+  const [accessBusy, setAccessBusy] = useState(false);
+  async function changeAccess(id: string, action: "invite" | "revoke") {
+    setAccessBusy(true);
+    setAccessError("");
+    setAccessNotice("");
+    try {
+      await ctx.api.post(`/providers/${id}/${action}`, {});
+      setAccessNotice(
+        action === "invite"
+          ? "Invitation queued. Run the email worker to send it or inspect development mail locally."
+          : "Provider access and pending invitations revoked.",
+      );
+      await ctx.refresh();
+    } catch (problem) {
+      setAccessError(problem instanceof Error ? problem.message : "Provider access update failed.");
+    } finally {
+      setAccessBusy(false);
+    }
+  }
   const error = providers.error || bills.error || jobs.error;
   if (error) return <ErrorBox message={error.message} retry={() => void ctx.refresh()} />;
   if (!providers.data || !jobs.data || (financial && !bills.data)) return <Loading />;
   return (
     <>
       <div className="toolbar">
-        <p className="muted">Your service directory. Providers do not have login accounts.</p>
+        <p className="muted">
+          Your service directory. Owners can invite providers to their assignment-only portal.
+        </p>
         {canManage(ctx.org.role) && (
           <button className="button primary" onClick={() => ctx.openForm("provider")}>
             <Plus size={16} /> Add service provider
           </button>
         )}
       </div>
+      {accessNotice && (
+        <p role="status" className="success-box">
+          {accessNotice}
+        </p>
+      )}
+      {accessError && <ErrorBox message={accessError} />}
       {!providers.data.length ? (
         <Empty title="Build your trusted team">
           Add plumbers, electricians, security companies and other service contacts.
@@ -197,6 +226,26 @@ export function ProvidersPanel({ ctx }: { ctx: WorkspaceContext }) {
                 >
                   Contact details / edit
                 </button>
+              )}
+              {ctx.org.role === "owner" && (
+                <div className="split">
+                  <button
+                    className="button secondary"
+                    disabled={
+                      accessBusy || provider.portal_access || !provider.active || !provider.email
+                    }
+                    onClick={() => void changeAccess(provider.id, "invite")}
+                  >
+                    {provider.portal_access ? "Provider login linked" : "Invite provider login"}
+                  </button>
+                  <button
+                    className="text-button"
+                    disabled={accessBusy}
+                    onClick={() => void changeAccess(provider.id, "revoke")}
+                  >
+                    Revoke portal access
+                  </button>
+                </div>
               )}
               {financial && provider.active && (
                 <button

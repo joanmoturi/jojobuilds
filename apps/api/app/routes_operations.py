@@ -18,7 +18,7 @@ from .auth import (
     scoped_tenancy,
 )
 from .config import settings
-from .db import get_db
+from .db import get_db, serialize_writes
 from .imports import MAX_SIZE
 from .routes_core import visible_tenancies
 from .routes_payables import provider_record
@@ -76,7 +76,9 @@ def maintenance(ctx: Context = Depends(context), db: Session = Depends(get_db)):
                 priority=r.priority,
                 status=r.status,
                 assigned_to=r.assigned_to,
-                cost=None if ctx.member.role == "tenant" else r.cost,
+                cost=None if ctx.member.role in ("tenant", "manager") else r.cost,
+                provider_response=None if ctx.member.role == "tenant" else r.provider_response,
+                provider_note=None if ctx.member.role == "tenant" else r.provider_note,
                 updates=r.updates,
                 created_at=r.created_at.isoformat(),
             )
@@ -141,7 +143,11 @@ def update_maintenance(
     db: Session = Depends(get_db),
 ):
     require(ctx, "maintain")
+    serialize_writes(db)
+    db.scalar(select(m.Maintenance).where(m.Maintenance.id == request_id).with_for_update())
     record = request_access(db, ctx, request_id)
+    if ctx.member.role == "manager" and data.cost is not None:
+        raise HTTPException(403, "Managers cannot set maintenance financial amounts")
     if data.status != record.status and data.status not in TRANSITIONS[record.status]:
         raise HTTPException(422, f"Cannot move from {record.status} to {data.status}")
     if data.provider_id:
@@ -151,6 +157,9 @@ def update_maintenance(
         record.assigned_to = provider.name
     else:
         record.assigned_to = data.assigned_to
+    if record.provider_id != data.provider_id:
+        record.provider_response = "pending"
+        record.provider_note = ""
     record.provider_id = data.provider_id
     record.updates = [
         *record.updates,
@@ -162,7 +171,8 @@ def update_maintenance(
         },
     ]
     record.status = data.status
-    record.cost = data.cost
+    if data.cost is not None:
+        record.cost = data.cost
     audit(db, ctx, "maintenance.updated", record.id, status=data.status)
     if record.tenancy_id:
         tenant = db.get(m.Tenant, db.get(m.Tenancy, record.tenancy_id).tenant_id)
@@ -180,7 +190,7 @@ def attachments(ctx: Context = Depends(context), db: Session = Depends(get_db)):
     )
     if ctx.member.role == "tenant":
         query = query.where(m.Attachment.tenancy_id.in_([t.id for t in visible_tenancies(db, ctx)]))
-    if ctx.member.role in ("caretaker", "maintenance"):
+    if ctx.member.role in ("caretaker", "maintenance", "manager"):
         query = query.where(m.Attachment.maintenance_id.is_not(None))
     return [
         dict(
@@ -206,7 +216,7 @@ async def upload_attachment(
     db: Session = Depends(get_db),
 ):
     scoped_property(db, ctx, property_id)
-    if ctx.member.role in ("caretaker", "maintenance") and not maintenance_id:
+    if ctx.member.role in ("caretaker", "maintenance", "manager") and not maintenance_id:
         raise HTTPException(403, "Your role can only upload maintenance attachments")
     if ctx.member.role == "tenant" and not tenancy_id:
         raise HTTPException(422, "Tenant uploads must be attached to your tenancy")
@@ -262,7 +272,7 @@ def download_attachment(
     if not record or record.org_id != ctx.org.id:
         raise HTTPException(404, "Attachment not found")
     scoped_property(db, ctx, record.property_id)
-    if ctx.member.role in ("caretaker", "maintenance") and not record.maintenance_id:
+    if ctx.member.role in ("caretaker", "maintenance", "manager") and not record.maintenance_id:
         raise HTTPException(404, "Attachment not found")
     if ctx.member.role == "tenant":
         if not record.tenancy_id:

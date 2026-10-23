@@ -229,6 +229,10 @@ class Maintenance(Base):
     status: Mapped[str] = mapped_column(String(30), default="submitted")
     assigned_to: Mapped[str] = mapped_column(String(150), default="")
     cost: Mapped[int] = mapped_column(BigInteger, default=0)
+    provider_response: Mapped[str] = mapped_column(
+        String(20), default="pending", server_default="pending"
+    )
+    provider_note: Mapped[str] = mapped_column(String(500), default="", server_default="")
     updates: Mapped[list] = mapped_column(JSON, default=list)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 
@@ -382,3 +386,117 @@ class RateBucket(Base):
     __tablename__ = "rate_buckets"
     key: Mapped[str] = mapped_column(String(64), primary_key=True)
     count: Mapped[int] = mapped_column(Integer, default=0)
+
+
+class ProviderAccess(Base):
+    __tablename__ = "provider_access"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    org_id: Mapped[str] = mapped_column(ForeignKey("organizations.id"), index=True)
+    provider_id: Mapped[str] = mapped_column(ForeignKey("service_providers.id"), unique=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+
+
+class ProviderAction(Base):
+    __tablename__ = "provider_actions"
+    __table_args__ = (UniqueConstraint("request_id", "idempotency_key"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    request_id: Mapped[str] = mapped_column(ForeignKey("maintenance.id"))
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    idempotency_key: Mapped[str] = mapped_column(String(100))
+    payload: Mapped[dict] = mapped_column(JSON)
+
+
+class TenantMessage(Base):
+    __tablename__ = "tenant_messages"
+    __table_args__ = (UniqueConstraint("org_id", "idempotency_key"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    org_id: Mapped[str] = mapped_column(ForeignKey("organizations.id"), index=True)
+    tenancy_id: Mapped[str] = mapped_column(ForeignKey("tenancies.id"), index=True)
+    sender_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    subject: Mapped[str] = mapped_column(String(150))
+    body: Mapped[str] = mapped_column(String(2000))
+    deliver_email: Mapped[bool] = mapped_column(Boolean)
+    email_status: Mapped[str] = mapped_column(String(30))
+    in_app: Mapped[bool] = mapped_column(Boolean)
+    idempotency_key: Mapped[str] = mapped_column(String(100))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class GoogleIdentity(Base):
+    __tablename__ = "google_identities"
+    subject: Mapped[str] = mapped_column(String(255), primary_key=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), unique=True)
+
+
+class OAuthAttempt(Base):
+    __tablename__ = "oauth_attempts"
+    state_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    browser_hash: Mapped[str] = mapped_column(String(64))
+    nonce: Mapped[str] = mapped_column(String(100))
+    verifier: Mapped[str] = mapped_column(String(100))
+    invite_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    link_user_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class Conversation(Base):
+    __tablename__ = "conversations"
+    __table_args__ = (
+        UniqueConstraint("org_id", "property_id", "first_user_id", "second_user_id", "context_key"),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    org_id: Mapped[str] = mapped_column(ForeignKey("organizations.id"), index=True)
+    property_id: Mapped[str] = mapped_column(ForeignKey("properties.id"), index=True)
+    first_user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    second_user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    tenancy_id: Mapped[str | None] = mapped_column(ForeignKey("tenancies.id"), nullable=True)
+    request_id: Mapped[str | None] = mapped_column(ForeignKey("maintenance.id"), nullable=True)
+    provider_id: Mapped[str | None] = mapped_column(
+        ForeignKey("service_providers.id"), nullable=True
+    )
+    context_key: Mapped[str] = mapped_column(String(100))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class ConversationMessage(Base):
+    __tablename__ = "conversation_messages"
+    __table_args__ = (UniqueConstraint("sender_id", "idempotency_key"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    conversation_id: Mapped[str] = mapped_column(ForeignKey("conversations.id"), index=True)
+    sender_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    body: Mapped[str] = mapped_column(String(2000))
+    idempotency_key: Mapped[str] = mapped_column(String(100))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class ServiceDocument(Base):
+    __tablename__ = "service_documents"
+    __table_args__ = (
+        UniqueConstraint("org_id", "created_by", "idempotency_key"),
+        UniqueConstraint("request_id", "provider_id", "kind", "revision"),
+        CheckConstraint("amount > 0 AND revision > 0", name="ck_service_document_amount"),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    org_id: Mapped[str] = mapped_column(ForeignKey("organizations.id"), index=True)
+    request_id: Mapped[str] = mapped_column(ForeignKey("maintenance.id"), index=True)
+    provider_id: Mapped[str] = mapped_column(ForeignKey("service_providers.id"), index=True)
+    kind: Mapped[str] = mapped_column(String(20))
+    revision: Mapped[int] = mapped_column(Integer)
+    quote_id: Mapped[str | None] = mapped_column(ForeignKey("service_documents.id"), nullable=True)
+    items: Mapped[list] = mapped_column(JSON)
+    amount: Mapped[int] = mapped_column(BigInteger)
+    currency: Mapped[str] = mapped_column(String(3))
+    terms_days: Mapped[int] = mapped_column(Integer, default=0)
+    reference: Mapped[str] = mapped_column(String(150), default="")
+    issued_on: Mapped[date] = mapped_column(Date)
+    notes: Mapped[str] = mapped_column(String(1000), default="")
+    status: Mapped[str] = mapped_column(String(20), default="submitted")
+    payable_id: Mapped[str | None] = mapped_column(ForeignKey("payables.id"), nullable=True)
+    created_by: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    idempotency_key: Mapped[str] = mapped_column(String(100))
+    payload: Mapped[dict] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+    reviewer_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    review_note: Mapped[str] = mapped_column(String(500), default="")
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

@@ -27,6 +27,13 @@ export default function More() {
   const refresh = useRefresh();
   return (
     <Screen title="Everything else, in reach." onRefresh={refresh}>
+      {org && (
+        <Button
+          label="Property messages & tenant balances"
+          secondary
+          onPress={() => router.push("/messages")}
+        />
+      )}
       {org && (canFinance(org.role) || canMaintain(org.role)) && (
         <Button
           label="Service providers & bills"
@@ -93,6 +100,12 @@ export default function More() {
                 <Text style={styles.muted}>
                   Assigned to: {r.assigned_to || "Awaiting assignment"}
                 </Text>
+                {r.provider_id && (
+                  <Text style={styles.muted}>Provider response: {r.provider_response}</Text>
+                )}
+                {r.provider_note && (
+                  <Text style={styles.muted}>Private provider response: {r.provider_note}</Text>
+                )}
                 {r.cost !== null && (
                   <Text style={styles.muted}>Recorded cost: {money(r.cost, org?.currency)}</Text>
                 )}

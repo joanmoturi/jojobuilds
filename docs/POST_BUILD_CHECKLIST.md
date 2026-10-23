@@ -12,6 +12,8 @@ operator task. Read README and SECURITY before entering real tenant data.
 | Implemented and verified | Persistent SQLite migrations, synthetic seed, secure owner bootstrap                       |
 | Implemented and verified | FastAPI/Next.js integration, desktop and mobile-width browser workflows                    |
 | Implemented and verified | Backend financial/auth/isolation tests, component tests, web production build              |
+| Implemented and verified | Property-scoped shared inbox, owner oversight and unchanged manager financial restrictions |
+| Implemented and verified | Provider quotations/invoices, owner approval and own pending/paid/voided service views     |
 | Implemented and verified | Android Metro/Hermes source export; this is not an APK                                     |
 | Implemented and verified | SQLite backup and restore into a new directory                                             |
 | Requires my action       | Choose owner email/password with `bootstrap`; no default real account exists               |
@@ -32,6 +34,7 @@ operator task. Read README and SECURITY before entering real tenant data.
 | Blocked            | Unresolved dependency advisories; obtain supported fixes or qualified exposure assessment, then repeat affected checks |
 | Requires my action | Configure email delivery and verify invitations/recovery actually reach recipients                                     |
 | Requires my action | Validate local billing schedule and all final/partial-period charges                                                   |
+| Requires my action | Explain owner conversation oversight, review recipients and set message/document retention procedures                  |
 
 ## C. Before public hosting
 
@@ -63,15 +66,16 @@ operator task. Read README and SECURITY before entering real tenant data.
 
 ## E. Deferred integrations
 
-| Integration              | Status             | Existing boundary / missing activation work                                                                                                                   |
-| ------------------------ | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| M-Pesa Daraja            | Deferred by design | Provider protocol and honest status; needs authorized sandbox/production account, documented callbacks/authentication, idempotency and reconciliation testing |
-| Bank feeds               | Deferred by design | Statement-based workflow works; needs verified Kenyan bank/product coverage, consent, tokens, cursor/webhook lifecycle and cross-source deduplication         |
-| WhatsApp                 | Deferred by design | Messaging protocol only; requires business onboarding, recipient consent, approved templates, current pricing and delivery callbacks                          |
-| SMS                      | Deferred by design | No active adapter; provider, consent, costs and delivery verification required                                                                                |
-| Email                    | Requires my action | Database outbox/SMTP worker exists; set up Mailpit locally or an authorized production relay and verify delivery                                              |
-| Push                     | Deferred by design | In-app notifications exist; no token registration, credentials or push-delivery provider                                                                      |
-| PDF/OCR statement import | Deferred by design | CSV/XLSX only; requires redacted fixtures, extraction confidence and explicit review                                                                          |
+| Integration              | Status             | Existing boundary / missing activation work                                                                                                                                                  |
+| ------------------------ | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| M-Pesa Daraja            | Deferred by design | Provider protocol and honest status; needs authorized sandbox/production account, documented callbacks/authentication, idempotency and reconciliation testing                                |
+| Bank feeds               | Deferred by design | Statement-based workflow works; needs verified Kenyan bank/product coverage, consent, tokens, cursor/webhook lifecycle and cross-source deduplication                                        |
+| WhatsApp                 | Deferred by design | Messaging protocol only; requires business onboarding, recipient consent, approved templates, current pricing and delivery callbacks                                                         |
+| SMS                      | Deferred by design | No active adapter; provider, consent, costs and delivery verification required                                                                                                               |
+| Email                    | Requires my action | Database outbox/SMTP worker exists; set up Mailpit locally or an authorized production relay and verify delivery                                                                             |
+| Google sign-in           | Requires my action | Optional web OAuth login/linking implemented; configure server credentials, exact callback and consent access, then verify live Google sign-in on staging. Password login remains available. |
+| Push                     | Deferred by design | In-app notifications exist; no token registration, credentials or push-delivery provider                                                                                                     |
+| PDF/OCR statement import | Deferred by design | CSV/XLSX only; requires redacted fixtures, extraction confidence and explicit review                                                                                                         |
 
 Recommended order: validate CSV/manual records -> physical Android verification ->
 PostgreSQL and privacy/security hardening -> authorized provider sandbox ->

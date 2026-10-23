@@ -120,7 +120,9 @@ export default function Record() {
           assigned_to: values.assigned_to?.trim() || request?.assigned_to || "",
           provider_id:
             values.provider_id === "" ? null : (values.provider_id ?? request?.provider_id ?? null),
-          cost: parseOptionalMoney(values.cost ?? "", request?.cost ?? 0),
+          ...(org?.role === "manager"
+            ? {}
+            : { cost: parseOptionalMoney(values.cost ?? "", request?.cost ?? 0) }),
         });
       } else {
         await api.post("/maintenance", {
@@ -212,7 +214,8 @@ export default function Record() {
                     label: `${provider.name} · ${provider.trade}`,
                   })) ?? []),
               ])}
-              {field("cost", `Total recorded cost (${org?.currency}, optional)`, true)}
+              {org?.role !== "manager" &&
+                field("cost", `Total recorded cost (${org?.currency}, optional)`, true)}
               <Text style={styles.muted}>
                 Recorded cost is not a payment. Record a provider bill and outgoing payment in
                 Service providers.

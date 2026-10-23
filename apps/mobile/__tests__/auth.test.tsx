@@ -23,6 +23,7 @@ function SessionProbe() {
 
 test("switching organizations does not restore the secure session again", async () => {
   const session: Session = {
+    provider_access: false,
     user_id: "synthetic-user",
     name: "Synthetic Owner",
     email: "owner@example.com",

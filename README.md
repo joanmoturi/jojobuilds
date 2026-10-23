@@ -11,11 +11,14 @@ represented as independent bank authentication.
 
 | Guide                                                | What it covers                                                                  |
 | ---------------------------------------------------- | ------------------------------------------------------------------------------- |
-| [User guide](docs/USER_GUIDE.md)                     | Properties, tenants, monthly rent, receipts, statement review and maintenance   |
+| [Documentation index](docs/README.md)                | All user, developer, operations and release guides                              |
+| [Owner/staff user guide](docs/USER_GUIDE.md)         | Unit specifications, mixed-use rentals, bills, providers and owner finances     |
+| [Tenant guide](docs/TENANT_GUIDE.md)                 | Sign-in, My rentals, rent/bills, payment history and maintenance                |
 | [Run on your PC](docs/RUN_ON_PC.md)                  | Start/stop/restart, create a demo login, passwords and troubleshooting          |
 | [Run on Android](docs/RUN_ON_ANDROID.md)             | Native Expo Go, phone-browser access, Wi-Fi, firewall and addresses             |
 | [Deploy for real users](docs/DEPLOYMENT.md)          | Staging, HTTPS, private PostgreSQL, containers, jobs, backups and release gates |
 | [Build an Android APK](docs/mobile/ANDROID_BUILD.md) | Standalone installation and production build configuration                      |
+| [API reference](docs/API_REFERENCE.md)               | Authentication, authorization, endpoints, amounts and retry rules               |
 
 ## Run on this Windows computer
 
@@ -61,12 +64,23 @@ running, and restart them after a PC reboot; they are not Windows startup servic
 
 - Organization/property-scoped staff access, tenant-isolated web portal, opaque
   sessions, invitations, recovery and a configurable local email outbox.
-- Properties, buildings/units, tenants, tenancy history and move-out.
+- Residential/commercial unit specifications and labels, default/agreed rents,
+  assigned tenants, unit-level bill controls, tenancy history and move-out.
+- Tenant **My rentals** shows each rented apartment, stall or business premises
+  separately, with per-agreement balances and a filtered rent/bill view.
 - Monthly charges, partial payments, oldest-charge allocation, tenant credit,
   payment reversal, CSV ledger export and printable payment acknowledgements.
 - Fixed recurring water/garbage/service charges and manually entered variable bills.
 - Service-provider contacts, maintenance assignment, supplier bills, partial
   outgoing payments, last-payment dates, reversals and unpaid-bill voids.
+- Operations-only managers: assigned-rental balances, tenant messages and
+  complaint/provider coordination, without receipt handling or agreement editing.
+- Invitation-only service-provider website portal, one account across landlords,
+  assignment-scoped jobs, accept/decline, quotations, invoices and own paid/pending services.
+- Property-scoped conversations for owners, managers, tenants and providers,
+  with owner oversight. Managers retain operational-only access.
+- Tenant in-app messages and optional email queueing. Optional Google sign-in
+  and explicit account linking; disabled until server credentials are configured.
 - Owner-private manual tax/loan obligations, personal-use spending and monthly
   recorded cash movement. These are not automatic tax calculations or bank balances.
 - CSV/XLSX column mapping, preview, rejected-row reporting, import history,

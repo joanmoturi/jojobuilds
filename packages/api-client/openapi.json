@@ -2198,6 +2198,875 @@
           }
         }
       }
+    },
+    "/api/v1/tenant-balances": {
+      "get": {
+        "tags": [
+          "coordination"
+        ],
+        "summary": "Tenant Balances",
+        "operationId": "tenant_balances_api_v1_tenant_balances_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TenantBalanceOut"
+                  },
+                  "type": "array",
+                  "title": "Response Tenant Balances Api V1 Tenant Balances Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tenant-messages": {
+      "get": {
+        "tags": [
+          "coordination"
+        ],
+        "summary": "Messages",
+        "operationId": "messages_api_v1_tenant_messages_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TenantMessageOut"
+                  },
+                  "type": "array",
+                  "title": "Response Messages Api V1 Tenant Messages Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "coordination"
+        ],
+        "summary": "Send Message",
+        "operationId": "send_message_api_v1_tenant_messages_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantMessageIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantMessageOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/providers/{provider_id}/invite": {
+      "post": {
+        "tags": [
+          "coordination"
+        ],
+        "summary": "Invite Provider",
+        "operationId": "invite_provider_api_v1_providers__provider_id__invite_post",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Provider Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/providers/{provider_id}/revoke": {
+      "post": {
+        "tags": [
+          "coordination"
+        ],
+        "summary": "Revoke Provider",
+        "operationId": "revoke_provider_api_v1_providers__provider_id__revoke_post",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Provider Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/provider-portal": {
+      "get": {
+        "tags": [
+          "coordination"
+        ],
+        "summary": "Provider Portal",
+        "operationId": "provider_portal_api_v1_provider_portal_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderPortalOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/provider-portal/requests/{request_id}": {
+      "post": {
+        "tags": [
+          "coordination"
+        ],
+        "summary": "Provider Action",
+        "operationId": "provider_action_api_v1_provider_portal_requests__request_id__post",
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Request Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProviderActionIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/google/status": {
+      "get": {
+        "tags": [
+          "access"
+        ],
+        "summary": "Google Status",
+        "operationId": "google_status_api_v1_auth_google_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/google/start": {
+      "post": {
+        "tags": [
+          "access"
+        ],
+        "summary": "Start",
+        "operationId": "start_api_v1_auth_google_start_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleStart"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/google/link": {
+      "post": {
+        "tags": [
+          "access"
+        ],
+        "summary": "Link",
+        "operationId": "link_api_v1_auth_google_link_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleStart"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/google/callback": {
+      "get": {
+        "tags": [
+          "access"
+        ],
+        "summary": "Callback",
+        "operationId": "callback_api_v1_auth_google_callback_get",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "State"
+            }
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "Code"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/messaging/contacts": {
+      "get": {
+        "tags": [
+          "conversations"
+        ],
+        "summary": "Contacts",
+        "operationId": "contacts_api_v1_messaging_contacts_get",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Org Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MessageContactOut"
+                  },
+                  "title": "Response Contacts Api V1 Messaging Contacts Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/conversations": {
+      "get": {
+        "tags": [
+          "conversations"
+        ],
+        "summary": "Conversations",
+        "operationId": "conversations_api_v1_conversations_get",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Org Id"
+            }
+          },
+          {
+            "name": "request_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Request Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ConversationOut"
+                  },
+                  "title": "Response Conversations Api V1 Conversations Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "conversations"
+        ],
+        "summary": "Start Conversation",
+        "operationId": "start_conversation_api_v1_conversations_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConversationStart"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{conversation_id}": {
+      "get": {
+        "tags": [
+          "conversations"
+        ],
+        "summary": "Transcript",
+        "operationId": "transcript_api_v1_conversations__conversation_id__get",
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Conversation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{conversation_id}/messages": {
+      "post": {
+        "tags": [
+          "conversations"
+        ],
+        "summary": "Reply",
+        "operationId": "reply_api_v1_conversations__conversation_id__messages_post",
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Conversation Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConversationReply"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/provider-portal/requests/{request_id}/service-work": {
+      "get": {
+        "tags": [
+          "service quotations and invoices"
+        ],
+        "summary": "Provider Work",
+        "operationId": "provider_work_api_v1_provider_portal_requests__request_id__service_work_get",
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Request Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceWorkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/maintenance/{request_id}/service-work": {
+      "get": {
+        "tags": [
+          "service quotations and invoices"
+        ],
+        "summary": "Staff Work",
+        "operationId": "staff_work_api_v1_maintenance__request_id__service_work_get",
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Request Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceWorkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/provider-portal/requests/{request_id}/quotations": {
+      "post": {
+        "tags": [
+          "service quotations and invoices"
+        ],
+        "summary": "Submit Quote",
+        "operationId": "submit_quote_api_v1_provider_portal_requests__request_id__quotations_post",
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Request Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuotationIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceDocumentOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/provider-portal/requests/{request_id}/invoices": {
+      "post": {
+        "tags": [
+          "service quotations and invoices"
+        ],
+        "summary": "Submit Invoice",
+        "operationId": "submit_invoice_api_v1_provider_portal_requests__request_id__invoices_post",
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Request Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceInvoiceIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceDocumentOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/service-documents/{document_id}/review": {
+      "post": {
+        "tags": [
+          "service quotations and invoices"
+        ],
+        "summary": "Review Document",
+        "operationId": "review_document_api_v1_service_documents__document_id__review_post",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Document Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceReview"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceDocumentOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2432,6 +3301,212 @@
         ],
         "title": "ChargeOut"
       },
+      "ConversationMessageOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "sender_id": {
+            "type": "string",
+            "title": "Sender Id"
+          },
+          "sender": {
+            "type": "string",
+            "title": "Sender"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "sender_id",
+          "sender",
+          "body",
+          "created_at"
+        ],
+        "title": "ConversationMessageOut"
+      },
+      "ConversationOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "org_id": {
+            "type": "string",
+            "title": "Org Id"
+          },
+          "property_id": {
+            "type": "string",
+            "title": "Property Id"
+          },
+          "property_name": {
+            "type": "string",
+            "title": "Property Name"
+          },
+          "participants": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Participants"
+          },
+          "tenancy_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenancy Id"
+          },
+          "request_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Id"
+          },
+          "provider_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Id"
+          },
+          "context_label": {
+            "type": "string",
+            "title": "Context Label"
+          },
+          "observer": {
+            "type": "boolean",
+            "title": "Observer"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/ConversationMessageOut"
+            },
+            "type": "array",
+            "title": "Messages"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "org_id",
+          "property_id",
+          "property_name",
+          "participants",
+          "tenancy_id",
+          "request_id",
+          "provider_id",
+          "context_label",
+          "observer",
+          "messages"
+        ],
+        "title": "ConversationOut"
+      },
+      "ConversationReply": {
+        "properties": {
+          "body": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Body"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 16,
+            "title": "Idempotency Key"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "body",
+          "idempotency_key"
+        ],
+        "title": "ConversationReply"
+      },
+      "ConversationStart": {
+        "properties": {
+          "org_id": {
+            "type": "string",
+            "title": "Org Id"
+          },
+          "property_id": {
+            "type": "string",
+            "title": "Property Id"
+          },
+          "recipient_id": {
+            "type": "string",
+            "title": "Recipient Id"
+          },
+          "tenancy_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenancy Id"
+          },
+          "request_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Id"
+          },
+          "body": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Body"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 16,
+            "title": "Idempotency Key"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "org_id",
+          "property_id",
+          "recipient_id",
+          "body",
+          "idempotency_key"
+        ],
+        "title": "ConversationStart"
+      },
       "DashboardOut": {
         "properties": {
           "period": {
@@ -2585,6 +3660,26 @@
           "reason"
         ],
         "title": "EndTenancy"
+      },
+      "GoogleStart": {
+        "properties": {
+          "invitation": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 150,
+                "minLength": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invitation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "GoogleStart"
       },
       "HTTPValidationError": {
         "properties": {
@@ -2856,6 +3951,28 @@
             ],
             "title": "Cost"
           },
+          "provider_response": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Response"
+          },
+          "provider_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Note"
+          },
           "updates": {
             "items": {
               "$ref": "#/components/schemas/UpdateOut"
@@ -2928,11 +4045,17 @@
             "title": "Provider Id"
           },
           "cost": {
-            "type": "integer",
-            "maximum": 1000000000.0,
-            "minimum": 0.0,
-            "title": "Cost",
-            "default": 0
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000000000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost"
           }
         },
         "additionalProperties": false,
@@ -2942,6 +4065,77 @@
           "note"
         ],
         "title": "MaintenanceUpdate"
+      },
+      "MessageContactOut": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "property_id": {
+            "type": "string",
+            "title": "Property Id"
+          },
+          "property_name": {
+            "type": "string",
+            "title": "Property Name"
+          },
+          "tenancy_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenancy Id"
+          },
+          "request_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Id"
+          },
+          "provider_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "name",
+          "role",
+          "property_id",
+          "property_name",
+          "label"
+        ],
+        "title": "MessageContactOut"
       },
       "OrganizationOut": {
         "properties": {
@@ -3702,6 +4896,55 @@
         ],
         "title": "PropertyOut"
       },
+      "ProviderActionIn": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "accept",
+              "decline",
+              "progress"
+            ],
+            "title": "Action"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "in_progress",
+                  "awaiting_parts",
+                  "resolved"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Note"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 16,
+            "title": "Idempotency Key"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action",
+          "note",
+          "idempotency_key"
+        ],
+        "title": "ProviderActionIn"
+      },
       "ProviderIn": {
         "properties": {
           "name": {
@@ -3760,6 +5003,156 @@
         ],
         "title": "ProviderIn"
       },
+      "ProviderJobOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "org_id": {
+            "type": "string",
+            "title": "Org Id"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "priority": {
+            "type": "string",
+            "title": "Priority"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "response": {
+            "type": "string",
+            "title": "Response"
+          },
+          "provider_note": {
+            "type": "string",
+            "title": "Provider Note"
+          },
+          "property_name": {
+            "type": "string",
+            "title": "Property Name"
+          },
+          "location": {
+            "type": "string",
+            "title": "Location"
+          },
+          "contact": {
+            "type": "string",
+            "title": "Contact"
+          },
+          "tenant_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenant Name"
+          },
+          "tenant_phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenant Phone"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "updates": {
+            "items": {
+              "$ref": "#/components/schemas/UpdateOut"
+            },
+            "type": "array",
+            "title": "Updates"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "org_id",
+          "provider",
+          "title",
+          "description",
+          "category",
+          "priority",
+          "status",
+          "response",
+          "provider_note",
+          "property_name",
+          "location",
+          "contact",
+          "tenant_name",
+          "tenant_phone",
+          "unit",
+          "updates"
+        ],
+        "title": "ProviderJobOut"
+      },
+      "ProviderLandlordOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "landlord": {
+            "type": "string",
+            "title": "Landlord"
+          },
+          "demo": {
+            "type": "boolean",
+            "title": "Demo"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "landlord",
+          "demo",
+          "currency"
+        ],
+        "title": "ProviderLandlordOut"
+      },
       "ProviderOut": {
         "properties": {
           "name": {
@@ -3812,6 +5205,11 @@
           "id": {
             "type": "string",
             "title": "Id"
+          },
+          "portal_access": {
+            "type": "boolean",
+            "title": "Portal Access",
+            "default": false
           },
           "billed": {
             "anyOf": [
@@ -3871,6 +5269,209 @@
           "last_paid_on"
         ],
         "title": "ProviderOut"
+      },
+      "ProviderPortalOut": {
+        "properties": {
+          "landlords": {
+            "items": {
+              "$ref": "#/components/schemas/ProviderLandlordOut"
+            },
+            "type": "array",
+            "title": "Landlords"
+          },
+          "requests": {
+            "items": {
+              "$ref": "#/components/schemas/ProviderJobOut"
+            },
+            "type": "array",
+            "title": "Requests"
+          },
+          "services": {
+            "items": {
+              "$ref": "#/components/schemas/ProviderServiceOut"
+            },
+            "type": "array",
+            "title": "Services"
+          }
+        },
+        "type": "object",
+        "required": [
+          "landlords",
+          "requests",
+          "services"
+        ],
+        "title": "ProviderPortalOut"
+      },
+      "ProviderServiceOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "org_id": {
+            "type": "string",
+            "title": "Org Id"
+          },
+          "request_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Id"
+          },
+          "property_name": {
+            "type": "string",
+            "title": "Property Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "reference": {
+            "type": "string",
+            "title": "Reference"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "amount": {
+            "type": "integer",
+            "title": "Amount"
+          },
+          "paid": {
+            "type": "integer",
+            "title": "Paid"
+          },
+          "balance": {
+            "type": "integer",
+            "title": "Balance"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "awaiting_payment",
+              "partially_paid",
+              "paid",
+              "voided"
+            ],
+            "title": "Status"
+          },
+          "invoice_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invoice Status"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Due Date"
+          },
+          "payments": {
+            "items": {
+              "$ref": "#/components/schemas/OutgoingPaymentOut"
+            },
+            "type": "array",
+            "title": "Payments"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "org_id",
+          "request_id",
+          "property_name",
+          "description",
+          "reference",
+          "currency",
+          "amount",
+          "paid",
+          "balance",
+          "status",
+          "invoice_status",
+          "due_date",
+          "payments"
+        ],
+        "title": "ProviderServiceOut"
+      },
+      "QuotationIn": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/QuoteItem"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Items"
+          },
+          "terms_days": {
+            "type": "integer",
+            "maximum": 365.0,
+            "minimum": 0.0,
+            "title": "Terms Days",
+            "default": 14
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 1000,
+            "title": "Notes",
+            "default": ""
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 16,
+            "title": "Idempotency Key"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "idempotency_key"
+        ],
+        "title": "QuotationIn"
+      },
+      "QuoteItem": {
+        "properties": {
+          "description": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Description"
+          },
+          "quantity": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 1.0,
+            "title": "Quantity"
+          },
+          "unit_price": {
+            "type": "integer",
+            "maximum": 1000000000000.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Unit Price"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "description",
+          "quantity",
+          "unit_price"
+        ],
+        "title": "QuoteItem"
       },
       "Reason": {
         "properties": {
@@ -4267,6 +5868,241 @@
         ],
         "title": "RentalOut"
       },
+      "ServiceDocumentOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          },
+          "provider_id": {
+            "type": "string",
+            "title": "Provider Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "quotation",
+              "invoice"
+            ],
+            "title": "Kind"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "quote_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quote Id"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/QuoteItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "amount": {
+            "type": "integer",
+            "title": "Amount"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "terms_days": {
+            "type": "integer",
+            "title": "Terms Days"
+          },
+          "reference": {
+            "type": "string",
+            "title": "Reference"
+          },
+          "issued_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Issued On"
+          },
+          "notes": {
+            "type": "string",
+            "title": "Notes"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "payable_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payable Id"
+          },
+          "review_note": {
+            "type": "string",
+            "title": "Review Note"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "reviewed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "request_id",
+          "provider_id",
+          "kind",
+          "revision",
+          "quote_id",
+          "items",
+          "amount",
+          "currency",
+          "terms_days",
+          "reference",
+          "issued_on",
+          "notes",
+          "status",
+          "payable_id",
+          "review_note",
+          "created_at",
+          "reviewed_at"
+        ],
+        "title": "ServiceDocumentOut"
+      },
+      "ServiceInvoiceIn": {
+        "properties": {
+          "quote_id": {
+            "type": "string",
+            "title": "Quote Id"
+          },
+          "reference": {
+            "type": "string",
+            "maxLength": 150,
+            "minLength": 1,
+            "title": "Reference"
+          },
+          "issued_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Issued On"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 1000,
+            "title": "Notes",
+            "default": ""
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 16,
+            "title": "Idempotency Key"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quote_id",
+          "reference",
+          "issued_on",
+          "idempotency_key"
+        ],
+        "title": "ServiceInvoiceIn"
+      },
+      "ServiceReview": {
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "approve",
+              "reject"
+            ],
+            "title": "Decision"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "decision",
+          "note"
+        ],
+        "title": "ServiceReview"
+      },
+      "ServiceWorkOut": {
+        "properties": {
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "provider_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Id"
+          },
+          "accepted": {
+            "type": "boolean",
+            "title": "Accepted"
+          },
+          "can_quote": {
+            "type": "boolean",
+            "title": "Can Quote"
+          },
+          "documents": {
+            "items": {
+              "$ref": "#/components/schemas/ServiceDocumentOut"
+            },
+            "type": "array",
+            "title": "Documents"
+          }
+        },
+        "type": "object",
+        "required": [
+          "currency",
+          "provider_id",
+          "accepted",
+          "can_quote",
+          "documents"
+        ],
+        "title": "ServiceWorkOut"
+      },
       "SessionOut": {
         "properties": {
           "user_id": {
@@ -4302,6 +6138,11 @@
               }
             ],
             "title": "Token"
+          },
+          "provider_access": {
+            "type": "boolean",
+            "title": "Provider Access",
+            "default": false
           }
         },
         "type": "object",
@@ -4465,6 +6306,69 @@
         ],
         "title": "TenancyOut"
       },
+      "TenantBalanceOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "tenant_name": {
+            "type": "string",
+            "title": "Tenant Name"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "phone": {
+            "type": "string",
+            "title": "Phone"
+          },
+          "reference": {
+            "type": "string",
+            "title": "Reference"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "property_name": {
+            "type": "string",
+            "title": "Property Name"
+          },
+          "balance": {
+            "type": "integer",
+            "title": "Balance"
+          },
+          "overdue": {
+            "type": "integer",
+            "title": "Overdue"
+          },
+          "linked": {
+            "type": "boolean",
+            "title": "Linked"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "tenant_name",
+          "email",
+          "phone",
+          "reference",
+          "unit",
+          "property_name",
+          "balance",
+          "overdue",
+          "linked",
+          "status"
+        ],
+        "title": "TenantBalanceOut"
+      },
       "TenantIn": {
         "properties": {
           "name": {
@@ -4498,6 +6402,104 @@
           "name"
         ],
         "title": "TenantIn"
+      },
+      "TenantMessageIn": {
+        "properties": {
+          "tenancy_id": {
+            "type": "string",
+            "title": "Tenancy Id"
+          },
+          "subject": {
+            "type": "string",
+            "maxLength": 150,
+            "minLength": 1,
+            "title": "Subject"
+          },
+          "body": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Body"
+          },
+          "deliver_email": {
+            "type": "boolean",
+            "title": "Deliver Email",
+            "default": true
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 16,
+            "title": "Idempotency Key"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tenancy_id",
+          "subject",
+          "body",
+          "idempotency_key"
+        ],
+        "title": "TenantMessageIn"
+      },
+      "TenantMessageOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "tenancy_id": {
+            "type": "string",
+            "title": "Tenancy Id"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "sender": {
+            "type": "string",
+            "title": "Sender"
+          },
+          "property_name": {
+            "type": "string",
+            "title": "Property Name"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "email_status": {
+            "type": "string",
+            "title": "Email Status"
+          },
+          "in_app": {
+            "type": "boolean",
+            "title": "In App"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "tenancy_id",
+          "subject",
+          "body",
+          "sender",
+          "property_name",
+          "unit",
+          "email_status",
+          "in_app",
+          "created_at"
+        ],
+        "title": "TenantMessageOut"
       },
       "TenantOut": {
         "properties": {
@@ -4628,7 +6630,14 @@
             "title": "Usage"
           },
           "default_rent": {
-            "type": "integer",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Default Rent"
           },
           "occupied": {

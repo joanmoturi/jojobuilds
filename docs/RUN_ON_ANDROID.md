@@ -105,6 +105,15 @@ payments. Maintenance requests show tenant/unit information and can be assigned
 to a registered provider. These workflows record amounts and payment history,
 not bank transfers or automatic tax calculations.
 
+Managers see only operational tools. **Balances** and **More -> Property messages &
+tenant balances** show assigned-rental outstanding/overdue totals and reminders, not
+rent/deposit agreements or payment ledgers. The native shared inbox supports
+scoped staff conversations and read-only owner oversight.
+Provider quotations/invoices and paid/pending service views use the website.
+Tenant/provider portals and Google
+sign-in currently use the responsive website; provider-only native sign-in
+shows website guidance rather than granting staff access.
+
 Keep the API and Expo terminals open. A QR code starts the development client;
 it does not publish the app or make your backend available on the internet.
 Do not use an Expo tunnel as a supposed fix for an unreachable private API.

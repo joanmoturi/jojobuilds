@@ -19,8 +19,8 @@ export default function TabsLayout() {
       <Screen title="Landlord mobile workspace">
         <Card>
           <Text>
-            This Android app is for authorized property staff. Use the website for the tenant portal
-            or contact your owner about access.
+            This Android app is for authorized property staff. Use the website for tenant and
+            service-provider portals, including Google sign-in, or contact your owner about access.
           </Text>
           <Button label="Sign out" onPress={() => void logout()} />
         </Card>
@@ -62,8 +62,11 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="tenants"
         options={{
-          title: "Tenants",
-          href: canManageTenants(org.role) || org.role === "finance" ? "/tenants" : null,
+          title: org.role === "manager" ? "Balances" : "Tenants",
+          href:
+            canManageTenants(org.role) || ["manager", "finance"].includes(org.role)
+              ? "/tenants"
+              : null,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="people-outline" color={color} size={size} />
           ),

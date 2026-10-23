@@ -5,7 +5,11 @@ async function signIn(page: Page, email = "owner@example.com") {
   await page.getByLabel("Email address").fill(email);
   await page.getByLabel("Password", { exact: true }).fill("synthetic-e2e-password");
   await page.getByRole("button", { name: "Sign in to JOJOBUILDS" }).click();
-  await expect(page.locator(".collection-card")).toBeVisible();
+  if (email === "manager-demo@example.com")
+    await expect(
+      page.getByRole("heading", { name: "Tenant balances.", exact: true }),
+    ).toBeVisible();
+  else await expect(page.locator(".collection-card")).toBeVisible();
 }
 async function navigate(page: Page, name: string) {
   await page
@@ -85,6 +89,9 @@ test("staff preview uses an assigned-property manager account, not owner imperso
 }) => {
   await signIn(page, "manager-demo@example.com");
   const navigation = page.getByRole("navigation", { name: "Main navigation" });
+  for (const name of ["Payments", "Overview", "Recurring bills"])
+    await expect(navigation.getByRole("button", { name, exact: true })).toHaveCount(0);
+  await expect(navigation.getByRole("button", { name: "Messages", exact: true })).toBeVisible();
   await expect(navigation.getByRole("button", { name: "Owner finances", exact: true })).toHaveCount(
     0,
   );

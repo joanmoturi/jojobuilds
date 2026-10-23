@@ -25,7 +25,7 @@ from .auth import (
     utc,
 )
 from .config import settings
-from .db import get_db
+from .db import get_db, serialize_writes
 
 router = APIRouter(prefix="/api/v1", tags=["access"])
 
@@ -100,6 +100,7 @@ def recover(data: s.Recover, request: Request, db: Session = Depends(get_db)):
 def redeem(data: s.Redeem, request: Request, db: Session = Depends(get_db)):
     origin_check(request)
     rate_limit(db, request, "redeem", maximum=10)
+    serialize_writes(db)
     action = db.scalar(
         select(m.ActionToken)
         .where(m.ActionToken.token_hash == digest(data.token))
@@ -129,6 +130,38 @@ def redeem(data: s.Redeem, request: Request, db: Session = Depends(get_db)):
 
 def accept_membership(db: Session, action: m.ActionToken, user: m.User):
     payload = action.payload
+    if action.kind == "provider_invite":
+        provider = db.scalar(
+            select(m.ServiceProvider)
+            .where(
+                m.ServiceProvider.id == payload.get("provider_id"),
+                m.ServiceProvider.org_id == payload["org_id"],
+            )
+            .with_for_update()
+        )
+        if not provider or not provider.active or provider.email.lower() != user.email.lower():
+            raise HTTPException(422, "This invitation no longer matches the service provider")
+        link = db.scalar(
+            select(m.ProviderAccess).where(m.ProviderAccess.provider_id == provider.id)
+        )
+        if link and link.active:
+            raise HTTPException(409, "This provider already has an account link")
+        if link:
+            link.user_id = user.id
+            link.active = True
+        else:
+            db.add(
+                m.ProviderAccess(org_id=provider.org_id, provider_id=provider.id, user_id=user.id)
+            )
+        db.add(
+            m.Audit(
+                org_id=provider.org_id,
+                actor_id=user.id,
+                action="provider.invitation_accepted",
+                entity_id=provider.id,
+            )
+        )
+        return
     existing = db.scalar(
         select(m.Membership).where(
             m.Membership.org_id == payload["org_id"], m.Membership.user_id == user.id
@@ -168,9 +201,13 @@ def accept_membership(db: Session, action: m.ActionToken, user: m.User):
 def accept_invitation(
     data: s.Reason, request: Request, auth=Depends(authenticated), db: Session = Depends(get_db)
 ):
+    serialize_writes(db)
     token = db.scalar(
         select(m.ActionToken)
-        .where(m.ActionToken.token_hash == digest(data.reason), m.ActionToken.kind == "invite")
+        .where(
+            m.ActionToken.token_hash == digest(data.reason),
+            m.ActionToken.kind.in_(("invite", "provider_invite")),
+        )
         .with_for_update()
     )
     if not token or utc(token.expires_at) < m.now() or token.email != auth[0].email:

@@ -207,7 +207,7 @@ export function WorkspaceForm({
             note: text("note"),
             assigned_to: blank("assigned_to"),
             provider_id: blank("provider_id") || null,
-            cost: parseOptionalMoney(blank("cost")),
+            ...(ctx.org.role === "manager" ? {} : { cost: parseOptionalMoney(blank("cost")) }),
           });
           break;
       }
@@ -534,7 +534,7 @@ export function WorkspaceForm({
                   "amount",
                   `Default monthly rent (${ctx.org.currency})`,
                   "number",
-                  action === "unit-edit" && existingUnit
+                  action === "unit-edit" && existingUnit?.default_rent != null
                     ? (existingUnit.default_rent / 100).toFixed(2)
                     : "",
                 )}
@@ -580,7 +580,7 @@ export function WorkspaceForm({
                     "amount",
                     `Agreed monthly rent (${ctx.org.currency})`,
                     "number",
-                    action === "tenancy" && existingUnit
+                    action === "tenancy" && existingUnit?.default_rent != null
                       ? (existingUnit.default_rent / 100).toFixed(2)
                       : "",
                   )}
@@ -785,13 +785,14 @@ export function WorkspaceForm({
                   false,
                 )}
                 {input("note", "Tenant-visible progress note", "text", "", true, 3)}
-                {input(
-                  "cost",
-                  `Total recorded cost (${ctx.org.currency})`,
-                  "number",
-                  ((request?.cost ?? 0) / 100).toString(),
-                  false,
-                )}
+                {ctx.org.role !== "manager" &&
+                  input(
+                    "cost",
+                    `Total recorded cost (${ctx.org.currency})`,
+                    "number",
+                    ((request?.cost ?? 0) / 100).toString(),
+                    false,
+                  )}
                 <p className="muted">
                   Only valid workflow transitions are accepted by the server. Start by acknowledging
                   or assigning a submitted request. Recorded cost is an estimate/reference, not an

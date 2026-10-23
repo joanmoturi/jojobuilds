@@ -844,6 +844,331 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tenant-balances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Tenant Balances */
+        get: operations["tenant_balances_api_v1_tenant_balances_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenant-messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Messages */
+        get: operations["messages_api_v1_tenant_messages_get"];
+        put?: never;
+        /** Send Message */
+        post: operations["send_message_api_v1_tenant_messages_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/providers/{provider_id}/invite": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Invite Provider */
+        post: operations["invite_provider_api_v1_providers__provider_id__invite_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/providers/{provider_id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Revoke Provider */
+        post: operations["revoke_provider_api_v1_providers__provider_id__revoke_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/provider-portal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Provider Portal */
+        get: operations["provider_portal_api_v1_provider_portal_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/provider-portal/requests/{request_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Provider Action */
+        post: operations["provider_action_api_v1_provider_portal_requests__request_id__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/google/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Google Status */
+        get: operations["google_status_api_v1_auth_google_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/google/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start */
+        post: operations["start_api_v1_auth_google_start_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/google/link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Link */
+        post: operations["link_api_v1_auth_google_link_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/google/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Callback */
+        get: operations["callback_api_v1_auth_google_callback_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/messaging/contacts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Contacts */
+        get: operations["contacts_api_v1_messaging_contacts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/conversations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Conversations */
+        get: operations["conversations_api_v1_conversations_get"];
+        put?: never;
+        /** Start Conversation */
+        post: operations["start_conversation_api_v1_conversations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/conversations/{conversation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Transcript */
+        get: operations["transcript_api_v1_conversations__conversation_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/conversations/{conversation_id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reply */
+        post: operations["reply_api_v1_conversations__conversation_id__messages_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/provider-portal/requests/{request_id}/service-work": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Provider Work */
+        get: operations["provider_work_api_v1_provider_portal_requests__request_id__service_work_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/maintenance/{request_id}/service-work": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Staff Work */
+        get: operations["staff_work_api_v1_maintenance__request_id__service_work_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/provider-portal/requests/{request_id}/quotations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Quote */
+        post: operations["submit_quote_api_v1_provider_portal_requests__request_id__quotations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/provider-portal/requests/{request_id}/invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Invoice */
+        post: operations["submit_invoice_api_v1_provider_portal_requests__request_id__invoices_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/service-documents/{document_id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Review Document */
+        post: operations["review_document_api_v1_service_documents__document_id__review_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -947,6 +1272,68 @@ export interface components {
             /** Overdue */
             overdue: boolean;
         };
+        /** ConversationMessageOut */
+        ConversationMessageOut: {
+            /** Id */
+            id: string;
+            /** Sender Id */
+            sender_id: string;
+            /** Sender */
+            sender: string;
+            /** Body */
+            body: string;
+            /** Created At */
+            created_at: string;
+        };
+        /** ConversationOut */
+        ConversationOut: {
+            /** Id */
+            id: string;
+            /** Org Id */
+            org_id: string;
+            /** Property Id */
+            property_id: string;
+            /** Property Name */
+            property_name: string;
+            /** Participants */
+            participants: string[];
+            /** Tenancy Id */
+            tenancy_id: string | null;
+            /** Request Id */
+            request_id: string | null;
+            /** Provider Id */
+            provider_id: string | null;
+            /** Context Label */
+            context_label: string;
+            /** Observer */
+            observer: boolean;
+            /** Messages */
+            messages: components["schemas"]["ConversationMessageOut"][];
+        };
+        /** ConversationReply */
+        ConversationReply: {
+            /** Body */
+            body: string;
+            /** Idempotency Key */
+            idempotency_key: string;
+        };
+        /** ConversationStart */
+        ConversationStart: {
+            /** Org Id */
+            org_id: string;
+            /** Property Id */
+            property_id: string;
+            /** Recipient Id */
+            recipient_id: string;
+            /** Tenancy Id */
+            tenancy_id?: string | null;
+            /** Request Id */
+            request_id?: string | null;
+            /** Body */
+            body: string;
+            /** Idempotency Key */
+            idempotency_key: string;
+        };
         /** DashboardOut */
         DashboardOut: {
             /** Period */
@@ -1003,6 +1390,11 @@ export interface components {
             end_date: string;
             /** Reason */
             reason: string;
+        };
+        /** GoogleStart */
+        GoogleStart: {
+            /** Invitation */
+            invitation?: string | null;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -1103,6 +1495,10 @@ export interface components {
             assigned_to: string;
             /** Cost */
             cost: number | null;
+            /** Provider Response */
+            provider_response?: string | null;
+            /** Provider Note */
+            provider_note?: string | null;
             /** Updates */
             updates: components["schemas"]["UpdateOut"][];
             /** Created At */
@@ -1124,11 +1520,29 @@ export interface components {
             assigned_to: string;
             /** Provider Id */
             provider_id?: string | null;
-            /**
-             * Cost
-             * @default 0
-             */
-            cost: number;
+            /** Cost */
+            cost?: number | null;
+        };
+        /** MessageContactOut */
+        MessageContactOut: {
+            /** User Id */
+            user_id: string;
+            /** Name */
+            name: string;
+            /** Role */
+            role: string;
+            /** Property Id */
+            property_id: string;
+            /** Property Name */
+            property_name: string;
+            /** Tenancy Id */
+            tenancy_id?: string | null;
+            /** Request Id */
+            request_id?: string | null;
+            /** Provider Id */
+            provider_id?: string | null;
+            /** Label */
+            label: string;
         };
         /** OrganizationOut */
         OrganizationOut: {
@@ -1411,6 +1825,20 @@ export interface components {
             /** Outstanding */
             outstanding: number | null;
         };
+        /** ProviderActionIn */
+        ProviderActionIn: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "accept" | "decline" | "progress";
+            /** Status */
+            status?: ("in_progress" | "awaiting_parts" | "resolved") | null;
+            /** Note */
+            note: string;
+            /** Idempotency Key */
+            idempotency_key: string;
+        };
         /** ProviderIn */
         ProviderIn: {
             /** Name */
@@ -1447,6 +1875,56 @@ export interface components {
              * @default true
              */
             active: boolean;
+        };
+        /** ProviderJobOut */
+        ProviderJobOut: {
+            /** Id */
+            id: string;
+            /** Org Id */
+            org_id: string;
+            /** Provider */
+            provider: string;
+            /** Title */
+            title: string;
+            /** Description */
+            description: string;
+            /** Category */
+            category: string;
+            /** Priority */
+            priority: string;
+            /** Status */
+            status: string;
+            /** Response */
+            response: string;
+            /** Provider Note */
+            provider_note: string;
+            /** Property Name */
+            property_name: string;
+            /** Location */
+            location: string;
+            /** Contact */
+            contact: string;
+            /** Tenant Name */
+            tenant_name: string | null;
+            /** Tenant Phone */
+            tenant_phone: string | null;
+            /** Unit */
+            unit: string | null;
+            /** Updates */
+            updates: components["schemas"]["UpdateOut"][];
+        };
+        /** ProviderLandlordOut */
+        ProviderLandlordOut: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Landlord */
+            landlord: string;
+            /** Demo */
+            demo: boolean;
+            /** Currency */
+            currency: string;
         };
         /** ProviderOut */
         ProviderOut: {
@@ -1486,6 +1964,11 @@ export interface components {
             active: boolean;
             /** Id */
             id: string;
+            /**
+             * Portal Access
+             * @default false
+             */
+            portal_access: boolean;
             /** Billed */
             billed: number | null;
             /** Paid */
@@ -1494,6 +1977,78 @@ export interface components {
             balance: number | null;
             /** Last Paid On */
             last_paid_on: string | null;
+        };
+        /** ProviderPortalOut */
+        ProviderPortalOut: {
+            /** Landlords */
+            landlords: components["schemas"]["ProviderLandlordOut"][];
+            /** Requests */
+            requests: components["schemas"]["ProviderJobOut"][];
+            /** Services */
+            services: components["schemas"]["ProviderServiceOut"][];
+        };
+        /** ProviderServiceOut */
+        ProviderServiceOut: {
+            /** Id */
+            id: string;
+            /** Org Id */
+            org_id: string;
+            /** Request Id */
+            request_id: string | null;
+            /** Property Name */
+            property_name: string;
+            /** Description */
+            description: string;
+            /** Reference */
+            reference: string;
+            /** Currency */
+            currency: string;
+            /** Amount */
+            amount: number;
+            /** Paid */
+            paid: number;
+            /** Balance */
+            balance: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "awaiting_payment" | "partially_paid" | "paid" | "voided";
+            /** Invoice Status */
+            invoice_status: string | null;
+            /**
+             * Due Date
+             * Format: date
+             */
+            due_date: string;
+            /** Payments */
+            payments: components["schemas"]["OutgoingPaymentOut"][];
+        };
+        /** QuotationIn */
+        QuotationIn: {
+            /** Items */
+            items: components["schemas"]["QuoteItem"][];
+            /**
+             * Terms Days
+             * @default 14
+             */
+            terms_days: number;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /** Idempotency Key */
+            idempotency_key: string;
+        };
+        /** QuoteItem */
+        QuoteItem: {
+            /** Description */
+            description: string;
+            /** Quantity */
+            quantity: number;
+            /** Unit Price */
+            unit_price: number;
         };
         /** Reason */
         Reason: {
@@ -1654,6 +2209,93 @@ export interface components {
             /** Overdue */
             overdue: number;
         };
+        /** ServiceDocumentOut */
+        ServiceDocumentOut: {
+            /** Id */
+            id: string;
+            /** Request Id */
+            request_id: string;
+            /** Provider Id */
+            provider_id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "quotation" | "invoice";
+            /** Revision */
+            revision: number;
+            /** Quote Id */
+            quote_id: string | null;
+            /** Items */
+            items: components["schemas"]["QuoteItem"][];
+            /** Amount */
+            amount: number;
+            /** Currency */
+            currency: string;
+            /** Terms Days */
+            terms_days: number;
+            /** Reference */
+            reference: string;
+            /**
+             * Issued On
+             * Format: date
+             */
+            issued_on: string;
+            /** Notes */
+            notes: string;
+            /** Status */
+            status: string;
+            /** Payable Id */
+            payable_id: string | null;
+            /** Review Note */
+            review_note: string;
+            /** Created At */
+            created_at: string;
+            /** Reviewed At */
+            reviewed_at: string | null;
+        };
+        /** ServiceInvoiceIn */
+        ServiceInvoiceIn: {
+            /** Quote Id */
+            quote_id: string;
+            /** Reference */
+            reference: string;
+            /**
+             * Issued On
+             * Format: date
+             */
+            issued_on: string;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /** Idempotency Key */
+            idempotency_key: string;
+        };
+        /** ServiceReview */
+        ServiceReview: {
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "approve" | "reject";
+            /** Note */
+            note: string;
+        };
+        /** ServiceWorkOut */
+        ServiceWorkOut: {
+            /** Currency */
+            currency: string;
+            /** Provider Id */
+            provider_id: string | null;
+            /** Accepted */
+            accepted: boolean;
+            /** Can Quote */
+            can_quote: boolean;
+            /** Documents */
+            documents: components["schemas"]["ServiceDocumentOut"][];
+        };
         /** SessionOut */
         SessionOut: {
             /** User Id */
@@ -1668,6 +2310,11 @@ export interface components {
             organizations: components["schemas"]["OrganizationOut"][];
             /** Token */
             token?: string | null;
+            /**
+             * Provider Access
+             * @default false
+             */
+            provider_access: boolean;
         };
         /** SuggestionOut */
         SuggestionOut: {
@@ -1730,6 +2377,31 @@ export interface components {
             /** Status */
             status: string;
         };
+        /** TenantBalanceOut */
+        TenantBalanceOut: {
+            /** Id */
+            id: string;
+            /** Tenant Name */
+            tenant_name: string;
+            /** Email */
+            email: string;
+            /** Phone */
+            phone: string;
+            /** Reference */
+            reference: string;
+            /** Unit */
+            unit: string;
+            /** Property Name */
+            property_name: string;
+            /** Balance */
+            balance: number;
+            /** Overdue */
+            overdue: number;
+            /** Linked */
+            linked: boolean;
+            /** Status */
+            status: string;
+        };
         /** TenantIn */
         TenantIn: {
             /** Name */
@@ -1749,6 +2421,45 @@ export interface components {
              * @default
              */
             emergency_contact: string;
+        };
+        /** TenantMessageIn */
+        TenantMessageIn: {
+            /** Tenancy Id */
+            tenancy_id: string;
+            /** Subject */
+            subject: string;
+            /** Body */
+            body: string;
+            /**
+             * Deliver Email
+             * @default true
+             */
+            deliver_email: boolean;
+            /** Idempotency Key */
+            idempotency_key: string;
+        };
+        /** TenantMessageOut */
+        TenantMessageOut: {
+            /** Id */
+            id: string;
+            /** Tenancy Id */
+            tenancy_id: string;
+            /** Subject */
+            subject: string;
+            /** Body */
+            body: string;
+            /** Sender */
+            sender: string;
+            /** Property Name */
+            property_name: string;
+            /** Unit */
+            unit: string;
+            /** Email Status */
+            email_status: string;
+            /** In App */
+            in_app: boolean;
+            /** Created At */
+            created_at: string;
         };
         /** TenantOut */
         TenantOut: {
@@ -1815,7 +2526,7 @@ export interface components {
              */
             usage: "residential" | "commercial";
             /** Default Rent */
-            default_rent: number;
+            default_rent: number | null;
             /** Occupied */
             occupied: boolean;
         };
@@ -3594,6 +4305,643 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OwnerFinanceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    tenant_balances_api_v1_tenant_balances_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantBalanceOut"][];
+                };
+            };
+        };
+    };
+    messages_api_v1_tenant_messages_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantMessageOut"][];
+                };
+            };
+        };
+    };
+    send_message_api_v1_tenant_messages_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TenantMessageIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantMessageOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    invite_provider_api_v1_providers__provider_id__invite_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revoke_provider_api_v1_providers__provider_id__revoke_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    provider_portal_api_v1_provider_portal_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProviderPortalOut"];
+                };
+            };
+        };
+    };
+    provider_action_api_v1_provider_portal_requests__request_id__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProviderActionIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    google_status_api_v1_auth_google_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    start_api_v1_auth_google_start_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GoogleStart"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    link_api_v1_auth_google_link_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GoogleStart"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    callback_api_v1_auth_google_callback_get: {
+        parameters: {
+            query?: {
+                state?: string;
+                code?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    contacts_api_v1_messaging_contacts_get: {
+        parameters: {
+            query: {
+                org_id: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageContactOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    conversations_api_v1_conversations_get: {
+        parameters: {
+            query: {
+                org_id: string;
+                request_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConversationOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    start_conversation_api_v1_conversations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConversationStart"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConversationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    transcript_api_v1_conversations__conversation_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConversationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reply_api_v1_conversations__conversation_id__messages_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConversationReply"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConversationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    provider_work_api_v1_provider_portal_requests__request_id__service_work_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceWorkOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    staff_work_api_v1_maintenance__request_id__service_work_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceWorkOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_quote_api_v1_provider_portal_requests__request_id__quotations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuotationIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceDocumentOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_invoice_api_v1_provider_portal_requests__request_id__invoices_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ServiceInvoiceIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceDocumentOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_document_api_v1_service_documents__document_id__review_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ServiceReview"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceDocumentOut"];
                 };
             };
             /** @description Validation Error */

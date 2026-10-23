@@ -16,6 +16,22 @@
   `imported_transactions` preserve observed rows and reconciliation decisions.
 - `maintenance` records include a status-update history.
 - `service_providers` supplies contacts and optional maintenance assignment.
+- `provider_access` links a provider directory record to a user independently of
+  memberships; one user can link across landlord organizations.
+- Maintenance keeps provider response/private response note separately from the
+  tenant-visible update history; `provider_actions` records exact retry payloads.
+- `tenant_messages` stores scoped message history, sender, channel status and
+  organization-unique idempotency keys.
+- `conversations` binds two canonical participants to an organization, property
+  and optional tenancy or provider/job snapshot. Owners can oversee property
+  threads without becoming participants.
+- `conversation_messages` stores append-only messages and sender-wide retry keys.
+- `service_documents` stores immutable quotation/invoice revisions, itemized
+  minor-unit totals, owner reviews and the linked payable. An invoice references
+  its approved quotation and reuses its payable, never another liability.
+- `google_identities` links immutable Google subjects to users. Expiring
+  `oauth_attempts` stores hashed state/browser binding, nonce, PKCE verifier,
+  optional invitation hash and explicit link-user identity, never Google tokens.
 - `recurring_charges` configures fixed future monthly tenant bills; generated
   obligations remain ordinary `charges`.
 - `payables` supplies scoped service/operating bills and owner-private

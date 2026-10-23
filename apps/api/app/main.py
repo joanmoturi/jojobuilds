@@ -9,10 +9,14 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 from .config import settings
 from .db import engine
 from .routes_auth import router as auth_router
+from .routes_coordination import router as coordination_router
 from .routes_core import router as core_router
 from .routes_finance import router as finance_router
+from .routes_google import router as google_router
+from .routes_messaging import router as messaging_router
 from .routes_operations import router as operations_router
 from .routes_payables import router as payables_router
+from .routes_service_work import router as service_work_router
 
 app = FastAPI(
     title="JOJOBUILDS API",
@@ -27,6 +31,18 @@ app.add_middleware(
     allow_headers=["Content-Type", "X-CSRF-Token", "X-Organization", "Authorization"],
 )
 logger = logging.getLogger("jojobuilds")
+
+
+class OAuthLogFilter(logging.Filter):
+    def filter(self, record):
+        if isinstance(record.args, tuple) and len(record.args) == 5:
+            address, method, path, version, status = record.args
+            if isinstance(path, str) and path.startswith("/api/v1/auth/google/callback?"):
+                record.args = (address, method, path.split("?", 1)[0], version, status)
+        return True
+
+
+logging.getLogger("uvicorn.access").addFilter(OAuthLogFilter())
 
 
 @app.middleware("http")
@@ -73,3 +89,7 @@ app.include_router(core_router)
 app.include_router(finance_router)
 app.include_router(operations_router)
 app.include_router(payables_router)
+app.include_router(coordination_router)
+app.include_router(google_router)
+app.include_router(messaging_router)
+app.include_router(service_work_router)
