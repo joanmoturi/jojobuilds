@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: jojobuilds-staging-api
+    runtime: docker
+    plan: free
+    rootDir: apps/api
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: >-
+      sh -c 'alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 10000'
+    healthCheckPath: /ready
+    autoDeployTrigger: "off"
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: WEB_ORIGIN
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: DATA_DIR
+        value: /tmp/jojobuilds-staging-data
+      - key: SESSION_HOURS
+        value: "12"

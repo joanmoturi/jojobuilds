@@ -28,16 +28,17 @@ reach a landlord's PC by entering `localhost` on their own phone.
 
 ## Install, start and operate
 
-| Task                                                        | Guide                                          |
-| ----------------------------------------------------------- | ---------------------------------------------- |
-| Start or restart on the existing Windows PC                 | [Run on PC](RUN_ON_PC.md)                      |
-| Fresh checkout, dependencies, local configuration and email | [Local development](LOCAL_DEVELOPMENT.md)      |
-| Phone browser or native Expo development                    | [Run on Android](RUN_ON_ANDROID.md)            |
-| Routine operation and upgrades                              | [Operations runbook](OPERATIONS_RUNBOOK.md)    |
-| Protect and recover records                                 | [Backup and restore](BACKUP_AND_RESTORE.md)    |
-| Stage and deploy for real users                             | [Deployment](DEPLOYMENT.md)                    |
-| Create a signed Android build                               | [Android build guide](mobile/ANDROID_BUILD.md) |
-| Publish source to the repository                            | [GitHub guide](GITHUB.md)                      |
+| Task                                                               | Guide                                                |
+| ------------------------------------------------------------------ | ---------------------------------------------------- |
+| Start or restart on the existing Windows PC                        | [Run on PC](RUN_ON_PC.md)                            |
+| Fresh checkout, dependencies, local configuration and email        | [Local development](LOCAL_DEVELOPMENT.md)            |
+| Phone browser or native Expo development                           | [Run on Android](RUN_ON_ANDROID.md)                  |
+| Routine operation and upgrades                                     | [Operations runbook](OPERATIONS_RUNBOOK.md)          |
+| Protect and recover records                                        | [Backup and restore](BACKUP_AND_RESTORE.md)          |
+| Stage and deploy for real users                                    | [Deployment](DEPLOYMENT.md)                          |
+| Configure synthetic Netlify/Render/Neon staging and phased rollout | [Staging and rollout status](STAGING_AND_ROLLOUT.md) |
+| Create a signed Android build                                      | [Android build guide](mobile/ANDROID_BUILD.md)       |
+| Publish source to the repository                                   | [GitHub guide](GITHUB.md)                            |
 
 For a local run, the API and website must both be running. Accounts and records
 survive a restart; do not reseed or delete the data directory to fix startup.

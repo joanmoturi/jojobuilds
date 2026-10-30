@@ -1,6 +1,29 @@
 import type { NextConfig } from "next";
 
-const backend = process.env.API_INTERNAL_URL || "http://127.0.0.1:8000";
+let backend = process.env.API_INTERNAL_URL || "http://127.0.0.1:8000";
+if (process.env.NETLIFY === "true") {
+  if (!process.env.API_INTERNAL_URL) {
+    throw new Error("Netlify requires API_INTERNAL_URL for the deployed FastAPI service.");
+  }
+  const api = new URL(backend);
+  const hostname = api.hostname.replace(/\.$/, "");
+  if (
+    api.protocol !== "https:" ||
+    hostname === "localhost" ||
+    hostname.endsWith(".localhost") ||
+    /^127\./.test(hostname) ||
+    hostname === "[::1]" ||
+    hostname === "0.0.0.0" ||
+    api.username ||
+    api.password ||
+    api.pathname !== "/" ||
+    api.search ||
+    api.hash
+  ) {
+    throw new Error("Netlify API_INTERNAL_URL must be a remote HTTPS origin without credentials.");
+  }
+  backend = api.origin;
+}
 const config: NextConfig = {
   output: "standalone",
   transpilePackages: ["@jojobuilds/api-client"],

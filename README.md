@@ -9,16 +9,17 @@ represented as independent bank authentication.
 
 ## Start here
 
-| Guide                                                | What it covers                                                                  |
-| ---------------------------------------------------- | ------------------------------------------------------------------------------- |
-| [Documentation index](docs/README.md)                | All user, developer, operations and release guides                              |
-| [Owner/staff user guide](docs/USER_GUIDE.md)         | Unit specifications, mixed-use rentals, bills, providers and owner finances     |
-| [Tenant guide](docs/TENANT_GUIDE.md)                 | Sign-in, My rentals, rent/bills, payment history and maintenance                |
-| [Run on your PC](docs/RUN_ON_PC.md)                  | Start/stop/restart, create a demo login, passwords and troubleshooting          |
-| [Run on Android](docs/RUN_ON_ANDROID.md)             | Native Expo Go, phone-browser access, Wi-Fi, firewall and addresses             |
-| [Deploy for real users](docs/DEPLOYMENT.md)          | Staging, HTTPS, private PostgreSQL, containers, jobs, backups and release gates |
-| [Build an Android APK](docs/mobile/ANDROID_BUILD.md) | Standalone installation and production build configuration                      |
-| [API reference](docs/API_REFERENCE.md)               | Authentication, authorization, endpoints, amounts and retry rules               |
+| Guide                                                           | What it covers                                                                  |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| [Documentation index](docs/README.md)                           | All user, developer, operations and release guides                              |
+| [Owner/staff user guide](docs/USER_GUIDE.md)                    | Unit specifications, mixed-use rentals, bills, providers and owner finances     |
+| [Tenant guide](docs/TENANT_GUIDE.md)                            | Sign-in, My rentals, rent/bills, payment history and maintenance                |
+| [Run on your PC](docs/RUN_ON_PC.md)                             | Start/stop/restart, create a demo login, passwords and troubleshooting          |
+| [Run on Android](docs/RUN_ON_ANDROID.md)                        | Native Expo Go, phone-browser access, Wi-Fi, firewall and addresses             |
+| [Deploy for real users](docs/DEPLOYMENT.md)                     | Staging, HTTPS, private PostgreSQL, containers, jobs, backups and release gates |
+| [Staging setup and rollout status](docs/STAGING_AND_ROLLOUT.md) | What is configured, external account blockers, and business/family/tenant gates |
+| [Build an Android APK](docs/mobile/ANDROID_BUILD.md)            | Standalone installation and production build configuration                      |
+| [API reference](docs/API_REFERENCE.md)                          | Authentication, authorization, endpoints, amounts and retry rules               |
 
 ## Run on this Windows computer
 
