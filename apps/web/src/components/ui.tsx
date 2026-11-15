@@ -2,6 +2,7 @@
 
 import { AlertCircle, ArrowRight, LoaderCircle, X } from "lucide-react";
 import { useEffect, useRef, type ReactNode } from "react";
+import { FormPrivacyNotice } from "./policy-links";
 
 export function Badge({
   children,
@@ -67,6 +68,7 @@ export function Modal({
           <X size={20} />
         </button>
       </header>
+      <FormPrivacyNotice />
       {children}
     </dialog>
   );

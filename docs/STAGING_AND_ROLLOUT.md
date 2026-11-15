@@ -2,6 +2,15 @@
 
 Status recorded: **October 30, 2026**.
 
+**November 15, 2026 source-publication update:** GitHub now reports this
+repository as public. The owner explicitly authorized pushing the PWA/policy
+source changes to that existing public repository. Private-repository descriptions
+below record the October preparation state, not current visibility. No visibility
+change, hosted deployment or paid resource was performed as part of this update.
+See [PWA/free hosting](PWA_AND_FREE_HOSTING.md) and
+[public-launch safeguards](PUBLIC_LAUNCH_SAFEGUARDS.md) for the latest local work
+and pending real-data/commercial gates.
+
 **This is preparation for synthetic-data staging, not approval for business or
 tenant records. No paid resources have been authorized.**
 

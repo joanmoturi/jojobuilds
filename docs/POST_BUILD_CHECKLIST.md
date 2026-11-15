@@ -23,6 +23,13 @@ operator task. Read README and SECURITY before entering real tenant data.
 
 ## B. Before real tenant data
 
+November 15, 2026 update: phone-first PWA and public draft policy pages now exist.
+The absent support/privacy email and public address remain **blank and pending**,
+as requested. See [Public-launch safeguards](PUBLIC_LAUNCH_SAFEGUARDS.md) for the
+full operator/legal/accessibility checklist and
+[PWA/free hosting](PWA_AND_FREE_HOSTING.md) for implementation and limitations.
+Neither these pages nor browser offline support remove the release gates below.
+
 | Status             | Item                                                                                                                   |
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------- |
 | Requires my action | Replace synthetic data with a separately bootstrapped clean organization                                               |

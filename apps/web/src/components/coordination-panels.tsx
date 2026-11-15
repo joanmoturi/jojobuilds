@@ -15,60 +15,8 @@ import { useData } from "./workspace-panels";
 import { Badge, Empty, ErrorBox, Field, Loading } from "./ui";
 import { MessagingPanel } from "./messaging-panel";
 import { ServiceWorkPanel } from "./service-work-panel";
-
-export function GoogleButton({
-  api,
-  invitation,
-  connect = false,
-}: {
-  api: ReturnType<typeof createApi>;
-  invitation?: string;
-  connect?: boolean;
-}) {
-  const status = useQuery({
-    queryKey: ["google-status"],
-    queryFn: () => api.request<{ enabled: boolean }>("/auth/google/status"),
-  });
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  return (
-    <div>
-      <button
-        className="button secondary wide"
-        type="button"
-        disabled={busy || !status.data?.enabled}
-        onClick={async () => {
-          setBusy(true);
-          setError("");
-          try {
-            const result = await api.post<{ url: string }>(
-              `/auth/google/${connect ? "link" : "start"}`,
-              { invitation: invitation || null },
-            );
-            window.location.assign(result.url);
-          } catch (problem) {
-            setError(problem instanceof Error ? problem.message : "Google sign-in failed.");
-            setBusy(false);
-          }
-        }}
-      >
-        {connect ? "Connect Google account" : "Continue with Google"}
-      </button>
-      {status.error ? (
-        <ErrorBox message={status.error.message} retry={() => void status.refetch()} />
-      ) : status.data && !status.data.enabled ? (
-        <p className="muted">Google sign-in is not configured. Use email and password.</p>
-      ) : null}
-      {connect && (
-        <p className="muted">
-          Connect your matching Google email while signed in before using Google on an existing
-          account.
-        </p>
-      )}
-      {error && <ErrorBox message={error} />}
-    </div>
-  );
-}
+import { GoogleButton } from "./auth/google-button";
+import { clearSummary } from "@/lib/offline";
 
 export function CoordinationPanel({
   ctx,
@@ -174,8 +122,7 @@ export function CoordinationPanel({
             <textarea name="body" required maxLength={2000} rows={4} />
           </Field>
           <label>
-            <input type="checkbox" name="deliver_email" defaultChecked /> Also queue email when
-            configured
+            <input type="checkbox" name="deliver_email" /> Also queue email when configured
           </label>
           <p className="muted">
             In-app messages are available to linked tenant accounts. Queued email is not a delivery
@@ -383,6 +330,7 @@ export function ProviderWorkspace({
           onClick={async () => {
             try {
               await api.post("/auth/logout", {});
+              clearSummary();
               client.clear();
               window.location.reload();
             } catch (problem) {

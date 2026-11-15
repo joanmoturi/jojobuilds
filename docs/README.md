@@ -28,6 +28,13 @@ reach a landlord's PC by entering `localhost` on their own phone.
 
 ## Install, start and operate
 
+For the phone-first installable preview, offline-summary limitations, optional
+Google setup and researched free hosting, start with
+[PWA and free hosting](PWA_AND_FREE_HOSTING.md). Use `npm run local` and
+`http://localhost:3100`; it never silently switches to another project's port.
+Missing business/contact details and public-launch tasks are tracked in
+[Public-launch safeguards](PUBLIC_LAUNCH_SAFEGUARDS.md).
+
 | Task                                                               | Guide                                                |
 | ------------------------------------------------------------------ | ---------------------------------------------------- |
 | Start or restart on the existing Windows PC                        | [Run on PC](RUN_ON_PC.md)                            |

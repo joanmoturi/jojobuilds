@@ -1,5 +1,20 @@
 # Run JOJOBUILDS on your Windows PC
 
+## Recommended: one-command phone-first PWA preview
+
+```powershell
+Set-Location C:\Users\joanmoturi\Downloads\myproject
+npm run local
+```
+
+Open **http://localhost:3100**. The API uses port **8001**. This command builds the
+web preview, checks ports instead of silently switching them, preserves existing
+data and keeps both processes together until Ctrl+C. See
+[PWA and free hosting](PWA_AND_FREE_HOSTING.md) for installation, offline summaries,
+encrypted summary exports and Google setup. It does not start after a PC reboot
+unless you run it again. The two-terminal manual alternative below uses the
+original ports; do not mix the two configurations.
+
 Use PowerShell. Examples assume the existing project is at
 `C:\Users\joanmoturi\Downloads\myproject`; change that path if you move it.
 

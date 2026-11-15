@@ -6,13 +6,13 @@
   --paper: #f7f6f1;
   --surface: #fffefa;
   --ink: #182a39;
-  --muted: #7b827f;
+  --muted: #555f5b;
   --line: #e8e8df;
   --terracotta: #a44f36;
   --terracotta-dark: #8b402b;
-  --green: #218565;
-  --red: #bd534c;
-  --amber: #a47b26;
+  --green: #17684d;
+  --red: #9c3933;
+  --amber: #785711;
   --radius: 12px;
 }
 * {

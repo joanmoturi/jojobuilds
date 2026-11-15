@@ -16,7 +16,10 @@ export default defineConfig({
       timeout: 60_000,
     },
     {
-      command: "npm run dev --workspace=@jojobuilds/web -- --port 3011",
+      command:
+        process.env.PWA_TEST_PRODUCTION === "1"
+          ? "npm run start --workspace=@jojobuilds/web -- --port 3011"
+          : "npm run dev --workspace=@jojobuilds/web -- --port 3011",
       url: "http://127.0.0.1:3011",
       env: { API_INTERNAL_URL: "http://127.0.0.1:8011", NEXT_TELEMETRY_DISABLED: "1" },
       reuseExistingServer: false,

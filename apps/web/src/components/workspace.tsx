@@ -10,11 +10,9 @@ import {
 } from "@jojobuilds/api-client";
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  ArrowUpRight,
   Bell,
   Building2,
   ChevronDown,
-  CircleHelp,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -27,7 +25,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Overview,
   PropertiesPanel,
@@ -42,9 +40,13 @@ import {
 import { WorkspaceForm } from "./workspace-forms";
 import { FinanceForm, isFinanceForm } from "./finance-form";
 import { OwnerFinancesPanel, ProvidersPanel, RecurringChargesPanel } from "./finance-panels";
-import { ErrorBox, Field, Loading } from "./ui";
-import { CoordinationPanel, GoogleButton, ProviderWorkspace } from "./coordination-panels";
+import { ErrorBox, Loading } from "./ui";
+import { CoordinationPanel, ProviderWorkspace } from "./coordination-panels";
+import { GoogleButton } from "./auth/google-button";
+import { Login } from "./auth/login";
 import { MessagingPanel } from "./messaging-panel";
+import { OfflineSummaryControl } from "./offline-summary-control";
+import { clearSummary } from "@/lib/offline";
 
 export type Api = ReturnType<typeof createApi>;
 export interface WorkspaceContext {
@@ -146,13 +148,24 @@ function SessionGate() {
     );
   if (session.error && !(session.error instanceof ApiError && session.error.status === 401)) {
     return (
-      <main className="boot">
+      <main id="main-content" className="boot">
         <ErrorBox message={session.error.message} retry={() => void session.refetch()} />
+        <Link className="button secondary" href="/offline">
+          View saved offline summary
+        </Link>
       </main>
     );
   }
   if (!session.data)
-    return <Login api={api} onLogin={(data) => queryClient.setQueryData(["session"], data)} />;
+    return (
+      <Login
+        api={api}
+        onLogin={(data) => {
+          clearSummary();
+          queryClient.setQueryData(["session"], data);
+        }}
+      />
+    );
   if (googleError)
     return (
       <main className="boot">
@@ -211,6 +224,7 @@ function SessionGate() {
               baseUrl: "/api/v1",
               headers: () => ({ "X-CSRF-Token": session.data.csrf }),
             }).post("/auth/logout", {});
+            clearSummary();
             queryClient.clear();
           }}
         >
@@ -223,192 +237,6 @@ function SessionGate() {
       session={session.data}
       onService={session.data.provider_access ? () => setServiceMode(true) : undefined}
     />
-  );
-}
-
-function Login({ api, onLogin }: { api: Api; onLogin: (session: Session) => void }) {
-  const [mode, setMode] = useState<"login" | "recover" | "redeem">("login");
-  const [token, setToken] = useState("");
-  const [invitation, setInvitation] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
-  useEffect(() => {
-    const query = new URLSearchParams(window.location.search);
-    if (query.has("auth_error")) {
-      window.history.replaceState(null, "", "/");
-      queueMicrotask(() =>
-        setError(
-          "Google sign-in was not completed. For an existing password account, sign in and use Connect Google account first. New users need a matching invitation.",
-        ),
-      );
-    }
-    const action = query.get("invite") || query.get("reset");
-    if (action) {
-      // Tokens leave browser history immediately and are never persisted in local storage.
-      window.history.replaceState(null, "", "/");
-      queueMicrotask(() => {
-        setToken(action);
-        setInvitation(query.has("invite"));
-        setMode("redeem");
-      });
-    }
-  }, []);
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setBusy(true);
-    setError("");
-    setNotice("");
-    const data = new FormData(event.currentTarget);
-    try {
-      if (mode === "login") {
-        let result = await api.post<Session>("/auth/login", {
-          email: data.get("email"),
-          password: data.get("password"),
-        });
-        if (token && invitation) {
-          const invitedApi = createApi({
-            baseUrl: "/api/v1",
-            headers: () => ({ "X-CSRF-Token": result.csrf }),
-          });
-          await invitedApi.post("/auth/accept-invitation", { reason: token });
-          result = await invitedApi.request<Session>("/auth/session");
-        }
-        onLogin(result);
-      } else if (mode === "recover") {
-        const result = await api.post<{ message: string }>("/auth/recover", {
-          email: data.get("email"),
-        });
-        setNotice(result.message);
-      } else {
-        const result = await api.post<{ message: string }>("/auth/redeem", {
-          token,
-          name: data.get("name"),
-          password: data.get("password"),
-        });
-        setNotice(result.message);
-        setMode("login");
-        setToken("");
-      }
-    } catch (problem) {
-      setError(problem instanceof Error ? problem.message : "Sign in failed.");
-    } finally {
-      setBusy(false);
-    }
-  }
-  return (
-    <main className="login-page">
-      <section className="login-story">
-        <div className="wordmark">
-          <Building2 size={26} /> JOJO<span>BUILDS</span>
-        </div>
-        <div>
-          <span className="eyebrow">PROPERTY MANAGEMENT, WITH PERSPECTIVE</span>
-          <h1>
-            Good spaces.
-            <br />
-            Better managed.
-          </h1>
-          <p>
-            One clear view of your properties, your people,
-            <br />
-            and every payment in between.
-          </p>
-          <div className="architectural-art" aria-hidden="true">
-            <i />
-            <i />
-            <i />
-            <i />
-          </div>
-        </div>
-        <footer>
-          <ShieldCheck size={16} /> Your portfolio. Your private workspace.
-        </footer>
-      </section>
-      <section className="login-form">
-        <div className="mobile-brand wordmark">
-          JOJO<span>BUILDS</span>
-        </div>
-        <span className="eyebrow">WELCOME TO YOUR WORKSPACE</span>
-        <h2>
-          {mode === "login"
-            ? "A little clarity starts here."
-            : mode === "recover"
-              ? "Let’s get you back in."
-              : "Make yourself at home."}
-        </h2>
-        <p>
-          {mode === "login"
-            ? "Sign in to see what’s happening across your portfolio."
-            : "Secure access to your JOJOBUILDS account."}
-        </p>
-        <form onSubmit={submit}>
-          {mode !== "redeem" && (
-            <Field label="Email address">
-              <input
-                name="email"
-                type="email"
-                autoComplete="email"
-                placeholder="you@example.com"
-                required
-              />
-            </Field>
-          )}
-          {mode === "redeem" && (
-            <Field label="Your name">
-              <input name="name" autoComplete="name" maxLength={120} required />
-            </Field>
-          )}
-          {mode !== "recover" && (
-            <Field label={mode === "redeem" ? "New password (at least 12 characters)" : "Password"}>
-              <input
-                name="password"
-                type="password"
-                minLength={mode === "redeem" ? 12 : 1}
-                maxLength={200}
-                autoComplete={mode === "redeem" ? "new-password" : "current-password"}
-                required
-              />
-            </Field>
-          )}
-          {error && <ErrorBox message={error} />}
-          {notice && (
-            <p className="success-box" role="status">
-              {notice}
-            </p>
-          )}
-          <button className="button primary wide" disabled={busy}>
-            {busy
-              ? "Please wait..."
-              : mode === "login"
-                ? "Sign in to JOJOBUILDS"
-                : mode === "recover"
-                  ? "Send recovery instructions"
-                  : "Set up secure access"}
-            <ArrowUpRight size={17} />
-          </button>
-        </form>
-        {mode !== "recover" && (
-          <GoogleButton api={api} invitation={invitation ? token : undefined} />
-        )}
-        <button
-          className="text-button"
-          onClick={() => {
-            setMode(mode === "login" ? "recover" : "login");
-            setError("");
-          }}
-        >
-          {mode === "login" ? "Forgot your password?" : "Back to sign in"}
-        </button>
-        <div className="setup-note">
-          <CircleHelp size={18} />
-          <p>
-            First time running locally? Create your account with the <code>bootstrap</code> command
-            in the README. There are no default passwords.
-          </p>
-        </div>
-      </section>
-    </main>
   );
 }
 
@@ -435,6 +263,7 @@ function AuthenticatedWorkspace({
   const [form, setForm] = useState<FormKind | null>(null);
   const [rentalId, setRentalId] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const sidebarRef = useRef<HTMLElement>(null);
   const [logoutError, setLogoutError] = useState("");
   const api = useMemo(
     () =>
@@ -442,6 +271,7 @@ function AuthenticatedWorkspace({
         baseUrl: "/api/v1",
         headers: () => ({ "X-CSRF-Token": session.csrf, "X-Organization": org.id }),
         onUnauthorized: () => {
+          clearSummary();
           queryClient.clear();
           // Discard authenticated component state as well as the query cache.
           window.location.reload();
@@ -474,6 +304,39 @@ function AuthenticatedWorkspace({
     setRentalId(selectedRentalId);
     setMenuOpen(false);
   };
+  useEffect(() => {
+    if (!menuOpen) return;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const controls = () =>
+      Array.from(
+        sidebarRef.current?.querySelectorAll<HTMLElement>(
+          "a[href], button:not([disabled]), select",
+        ) ?? [],
+      );
+    controls()[0]?.focus();
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
+      if (event.key === "Tab") {
+        const items = controls();
+        const first = items[0];
+        const last = items[items.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first?.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("keydown", handleKey);
+      previous?.focus();
+    };
+  }, [menuOpen]);
   const ctx: WorkspaceContext = {
     api,
     org,
@@ -486,7 +349,13 @@ function AuthenticatedWorkspace({
 
   return (
     <div className="app-shell">
-      <aside className={`sidebar ${menuOpen ? "open" : ""}`}>
+      <aside
+        ref={sidebarRef}
+        className={`sidebar ${menuOpen ? "open" : ""}`}
+        role={menuOpen ? "dialog" : undefined}
+        aria-modal={menuOpen ? true : undefined}
+        aria-label="Workspace navigation"
+      >
         <Link className="wordmark" href="/" aria-label="JOJOBUILDS home">
           <Building2 size={25} /> JOJO<span>BUILDS</span>
         </Link>
@@ -500,6 +369,7 @@ function AuthenticatedWorkspace({
               aria-label="Select organization"
               value={orgId}
               onChange={(event) => {
+                clearSummary();
                 setOrgId(event.target.value);
                 setTab("properties");
                 setForm(null);
@@ -567,6 +437,7 @@ function AuthenticatedWorkspace({
                 try {
                   setLogoutError("");
                   await api.post("/auth/logout", {});
+                  clearSummary();
                   queryClient.clear();
                   window.location.reload();
                 } catch (error) {
@@ -592,6 +463,7 @@ function AuthenticatedWorkspace({
             <button
               className="icon-btn mobile-menu"
               aria-label={menuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={menuOpen}
               onClick={() => setMenuOpen(!menuOpen)}
             >
               {menuOpen ? <X size={21} /> : <Menu size={21} />}
@@ -691,6 +563,7 @@ function AuthenticatedWorkspace({
             </>
           )}
           {tab === "settings" && <GoogleButton api={api} connect />}
+          {tab === "settings" && <OfflineSummaryControl key={`${org.id}:${period}`} ctx={ctx} />}
           {tab === "settings" && <SettingsPanel ctx={ctx} />}
           <footer className="content-footer">
             <span>
@@ -703,7 +576,12 @@ function AuthenticatedWorkspace({
         </main>
         <nav className="mobile-bottom" aria-label="Mobile navigation">
           {allowed.slice(0, 4).map(({ key, label, icon: Icon }) => (
-            <button key={key} className={tab === key ? "active" : ""} onClick={() => navigate(key)}>
+            <button
+              key={key}
+              className={tab === key ? "active" : ""}
+              onClick={() => navigate(key)}
+              aria-current={tab === key ? "page" : undefined}
+            >
               <Icon size={19} />
               <span>{labelFor(key, label)}</span>
             </button>

@@ -23,6 +23,17 @@ represented as independent bank authentication.
 
 ## Run on this Windows computer
 
+**Phone-first PWA preview (recommended):** from this existing checkout, run
+`npm run local`, then open **http://localhost:3100**. It starts the matching API
+on port 8001 and refuses occupied ports instead of silently opening another app.
+See [PWA, offline summaries, Google setup and free hosting](docs/PWA_AND_FREE_HOSTING.md).
+Offline totals are opt-in/read-only, not a full ledger backup. Missing operator
+details and legal/accessibility launch gates are tracked in
+[Public-launch safeguards](docs/PUBLIC_LAUNCH_SAFEGUARDS.md).
+
+The manual commands below use the original ports; do not run them alongside the
+dedicated launcher or assume another application's localhost address is JOJOBUILDS.
+
 Node 24 and Python 3.14 are supported by the checked-in dependency lockfiles.
 The dependencies have been installed in this working copy.
 

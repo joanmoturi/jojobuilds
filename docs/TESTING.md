@@ -1,5 +1,25 @@
 # Testing
 
+## Phone-first PWA checks
+
+Run the web unit/type/lint checks plus `npx playwright test tests/e2e/pwa.spec.ts`
+for phone layout, public policy access, keyboard fields and explicit summary opt-in.
+The real offline/reload/cache-removal check requires a production build:
+
+```powershell
+$env:API_INTERNAL_URL = 'http://127.0.0.1:8011'
+$env:NEXT_TELEMETRY_DISABLED = '1'
+npm run build:web
+$env:PWA_TEST_PRODUCTION = '1'
+npx playwright test tests/e2e/pwa.spec.ts
+Remove-Item Env:\PWA_TEST_PRODUCTION, Env:\API_INTERNAL_URL
+```
+
+Playwright provisions its own isolated synthetic database; it never uses the
+local operator's ledger. The service worker stays disabled in development builds.
+Automated phone-sized Chromium checks are not a physical iPhone/Android,
+screen-reader audit, legal review or production/PostgreSQL verification.
+
 Operations-access regressions cover manager read-only balances and denied
 financial/document paths, scoped tenant messages/channel states, provider
 invitation reuse across landlords, assignment actions/retries and revocation.

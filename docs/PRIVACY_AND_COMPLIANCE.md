@@ -2,6 +2,13 @@
 
 JOJOBUILDS is not certified legally compliant. Operator/legal review is required
 before actual tenant data and separately before offering service to others.
+
+November 15, 2026: public draft privacy, terms, cookie/storage and refund pages
+are implemented under `/legal`. Supplied business name: JojoBuilds Landlord and
+Tenancy; initial country: Kenya. Missing public email and address remain blank.
+The detailed pending list and source-verification limits are in
+[Public-launch safeguards](PUBLIC_LAUNCH_SAFEGUARDS.md). Do not treat the pages as
+legal clearance or assume consent is the lawful basis for all rental processing.
 Do not copy an AI-generated claim of ODPC registration/compliance into the UI.
 
 Official starting points, consulted for the implementation brief:

@@ -5,6 +5,11 @@ Store them encrypted with tightly limited access; never put them in Git or a
 public cloud bucket. The built-in ZIP is not encrypted. Quiesce writes for an
 operational snapshot and maintain an offline/off-device copy.
 
+The PWA can separately export an encrypted **read-only summary of selected totals**.
+That file does not contain the database, tenant records or uploaded documents and
+cannot restore the ledger. Do not substitute it for the full procedure below.
+See [PWA and free hosting](PWA_AND_FREE_HOSTING.md).
+
 ## SQLite local mode
 
 In `apps\api`, with DATABASE_URL configured as when running the API:

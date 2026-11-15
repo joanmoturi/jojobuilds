@@ -19,6 +19,10 @@ test("provider invitation, one account across landlords and assignment progress"
     .getByLabel("New password (at least 12 characters)", { exact: true })
     .fill("synthetic-e2e-password");
   await page.getByRole("button", { name: "Set up secure access", exact: true }).click();
+  await expect(page.getByRole("checkbox", { name: /^I accept the terms/ })).not.toBeChecked();
+  await expect(page.getByText("Account updated. Sign in to continue.")).not.toBeVisible();
+  await page.getByRole("checkbox", { name: /^I accept the terms/ }).check();
+  await page.getByRole("button", { name: "Set up secure access", exact: true }).click();
   await expect(page.getByText("Account updated. Sign in to continue.")).toBeVisible();
   await page.getByLabel("Email address").fill("provider-login@example.com");
   await page.getByLabel("Password", { exact: true }).fill("synthetic-e2e-password");
