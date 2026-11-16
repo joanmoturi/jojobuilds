@@ -25,6 +25,21 @@ Use `POST /auth/logout` to end the current session.
 All paths below are relative to `/api/v1`. A UUID placeholder must be replaced
 with an ID obtained from an authorized response.
 
+## Company and building contacts
+
+`GET /organization-contact` returns the active company's `name`, `call_phone`,
+`sms_phone` and `whatsapp_phone` to authorized members. Owner-only
+`PUT /organization-contact` updates these settings with CSRF protection and an
+audit entry. Other organizations and non-owner writes are denied.
+
+Each channel accepts an empty string or an international phone number with a
+leading `+` and 7-15 digits. The API removes spaces, parentheses and hyphens
+before validation. Property create/update accepts the same optional channels;
+property and rental reads return the scoped building values. Existing property
+clients omitting the new fields do not erase saved channel numbers. The UI
+inherits each blank building channel from the company. No messaging-delivery
+endpoint or external provider credentials are added.
+
 ## Properties, units and agreements
 
 | Method     | Path                          | Purpose / access                                                                                                                                                                                 |

@@ -433,6 +433,66 @@
         }
       }
     },
+    "/api/v1/organization-contact": {
+      "get": {
+        "tags": [
+          "portfolio"
+        ],
+        "summary": "Organization Contact",
+        "operationId": "organization_contact_api_v1_organization_contact_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationContact"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "portfolio"
+        ],
+        "summary": "Update Organization Contact",
+        "operationId": "update_organization_contact_api_v1_organization_contact_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganizationContact"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationContact"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/properties": {
       "get": {
         "tags": [
@@ -4137,6 +4197,43 @@
         ],
         "title": "MessageContactOut"
       },
+      "OrganizationContact": {
+        "properties": {
+          "call_phone": {
+            "type": "string",
+            "maxLength": 16,
+            "pattern": "^(\\+[1-9][0-9]{6,14})?$",
+            "title": "Call Phone",
+            "default": ""
+          },
+          "sms_phone": {
+            "type": "string",
+            "maxLength": 16,
+            "pattern": "^(\\+[1-9][0-9]{6,14})?$",
+            "title": "Sms Phone",
+            "default": ""
+          },
+          "whatsapp_phone": {
+            "type": "string",
+            "maxLength": 16,
+            "pattern": "^(\\+[1-9][0-9]{6,14})?$",
+            "title": "Whatsapp Phone",
+            "default": ""
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 150,
+            "minLength": 1,
+            "title": "Name"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "OrganizationContact"
+      },
       "OrganizationOut": {
         "properties": {
           "id": {
@@ -4779,6 +4876,27 @@
       },
       "PropertyIn": {
         "properties": {
+          "call_phone": {
+            "type": "string",
+            "maxLength": 16,
+            "pattern": "^(\\+[1-9][0-9]{6,14})?$",
+            "title": "Call Phone",
+            "default": ""
+          },
+          "sms_phone": {
+            "type": "string",
+            "maxLength": 16,
+            "pattern": "^(\\+[1-9][0-9]{6,14})?$",
+            "title": "Sms Phone",
+            "default": ""
+          },
+          "whatsapp_phone": {
+            "type": "string",
+            "maxLength": 16,
+            "pattern": "^(\\+[1-9][0-9]{6,14})?$",
+            "title": "Whatsapp Phone",
+            "default": ""
+          },
           "name": {
             "type": "string",
             "maxLength": 150,
@@ -4838,6 +4956,21 @@
           "contact": {
             "type": "string",
             "title": "Contact"
+          },
+          "call_phone": {
+            "type": "string",
+            "title": "Call Phone",
+            "default": ""
+          },
+          "sms_phone": {
+            "type": "string",
+            "title": "Sms Phone",
+            "default": ""
+          },
+          "whatsapp_phone": {
+            "type": "string",
+            "title": "Whatsapp Phone",
+            "default": ""
           },
           "units": {
             "type": "integer",
@@ -5802,6 +5935,21 @@
           "contact": {
             "type": "string",
             "title": "Contact"
+          },
+          "call_phone": {
+            "type": "string",
+            "title": "Call Phone",
+            "default": ""
+          },
+          "sms_phone": {
+            "type": "string",
+            "title": "Sms Phone",
+            "default": ""
+          },
+          "whatsapp_phone": {
+            "type": "string",
+            "title": "Whatsapp Phone",
+            "default": ""
           },
           "number": {
             "type": "string",

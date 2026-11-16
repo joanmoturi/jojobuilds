@@ -237,6 +237,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/organization-contact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Organization Contact */
+        get: operations["organization_contact_api_v1_organization_contact_get"];
+        /** Update Organization Contact */
+        put: operations["update_organization_contact_api_v1_organization_contact_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/properties": {
         parameters: {
             query?: never;
@@ -1544,6 +1562,26 @@ export interface components {
             /** Label */
             label: string;
         };
+        /** OrganizationContact */
+        OrganizationContact: {
+            /**
+             * Call Phone
+             * @default
+             */
+            call_phone: string;
+            /**
+             * Sms Phone
+             * @default
+             */
+            sms_phone: string;
+            /**
+             * Whatsapp Phone
+             * @default
+             */
+            whatsapp_phone: string;
+            /** Name */
+            name: string;
+        };
         /** OrganizationOut */
         OrganizationOut: {
             /** Id */
@@ -1782,6 +1820,21 @@ export interface components {
         };
         /** PropertyIn */
         PropertyIn: {
+            /**
+             * Call Phone
+             * @default
+             */
+            call_phone: string;
+            /**
+             * Sms Phone
+             * @default
+             */
+            sms_phone: string;
+            /**
+             * Whatsapp Phone
+             * @default
+             */
+            whatsapp_phone: string;
             /** Name */
             name: string;
             /** Location */
@@ -1814,6 +1867,21 @@ export interface components {
             county: string;
             /** Contact */
             contact: string;
+            /**
+             * Call Phone
+             * @default
+             */
+            call_phone: string;
+            /**
+             * Sms Phone
+             * @default
+             */
+            sms_phone: string;
+            /**
+             * Whatsapp Phone
+             * @default
+             */
+            whatsapp_phone: string;
             /** Units */
             units: number;
             /** Occupied */
@@ -2189,6 +2257,21 @@ export interface components {
             county: string;
             /** Contact */
             contact: string;
+            /**
+             * Call Phone
+             * @default
+             */
+            call_phone: string;
+            /**
+             * Sms Phone
+             * @default
+             */
+            sms_phone: string;
+            /**
+             * Whatsapp Phone
+             * @default
+             */
+            whatsapp_phone: string;
             /** Number */
             number: string;
             /** Building */
@@ -2930,6 +3013,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    organization_contact_api_v1_organization_contact_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationContact"];
+                };
+            };
+        };
+    };
+    update_organization_contact_api_v1_organization_contact_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrganizationContact"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationContact"];
                 };
             };
             /** @description Validation Error */

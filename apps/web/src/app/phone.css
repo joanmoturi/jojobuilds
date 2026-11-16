@@ -2,6 +2,48 @@
   html {
     scroll-padding-bottom: 100px;
   }
+
+  .contact-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-block: 12px;
+  }
+  .contact-actions .button {
+    min-height: 44px;
+    font-size: 14px;
+  }
+  .contact-panel {
+    padding: 20px;
+    margin-bottom: 20px;
+    overflow-wrap: anywhere;
+  }
+  .contact-panel form > .field,
+  .contact-fields .field {
+    margin-bottom: 16px;
+  }
+  .contact-fields {
+    min-width: 0;
+    border: 1px solid #788273;
+    border-radius: 8px;
+    padding: 14px;
+    margin: 16px 0;
+  }
+  .contact-fields legend {
+    font-weight: 600;
+  }
+  .contact-fields p {
+    color: #46564b;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .building-contact {
+    padding-block: 8px;
+  }
+  .building-contact p {
+    font-size: 14px;
+    line-height: 1.7;
+  }
 }
 
 .skip-link {

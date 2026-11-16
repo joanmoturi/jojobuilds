@@ -15,6 +15,8 @@ import { z } from "zod";
 import type { WorkspaceContext } from "./workspace";
 import { useData, type FormKind } from "./workspace-panels";
 import { Badge, ErrorBox, Field, Loading, Modal } from "./ui";
+import { ContactChannelFields } from "./contact-panels";
+import { ContactLinks } from "./contact-links";
 
 const titles: Record<string, string> = {
   property: "Add a property",
@@ -103,6 +105,9 @@ export function WorkspaceForm({
             location: text("location"),
             county: blank("county"),
             contact: blank("contact"),
+            call_phone: blank("call_phone"),
+            sms_phone: blank("sms_phone"),
+            whatsapp_phone: blank("whatsapp_phone"),
             archived: values.archived === "true",
           };
           if (action === "property-edit")
@@ -391,6 +396,14 @@ export function WorkspaceForm({
               </div>
             </div>
             {person.emergency_contact && <p>Emergency contact: {person.emergency_contact}</p>}
+            <ContactLinks
+              channels={{
+                call_phone: person.phone,
+                sms_phone: person.phone,
+                whatsapp_phone: person.phone,
+              }}
+              recipient={person.name}
+            />
             {leases.map((lease) => (
               <section className="lease-detail" key={lease.id}>
                 <div className="split">
@@ -473,6 +486,15 @@ export function WorkspaceForm({
                     false,
                   )}
                 </div>
+                <ContactChannelFields
+                  channels={existingProperty}
+                  prefix="Building"
+                  register={register}
+                />
+                <p className="muted">
+                  A blank building channel uses the company default from Settings &amp; access.
+                  Leave that company channel blank too if you do not want to offer it.
+                </p>
                 {action === "property-edit" &&
                   select(
                     "archived",
@@ -552,7 +574,9 @@ export function WorkspaceForm({
                 {input("emergency_contact", "Emergency contact (optional)", "text", "", false)}
                 <p className="muted">
                   Registration does not send an invitation. Invite the tenant separately when their
-                  tenancy is ready.
+                  tenancy is ready. Use international format (+country code) for tenant phone
+                  numbers to enable Call, SMS and WhatsApp links. Confirm the tenant&apos;s
+                  preferred channel before contacting them.
                 </p>
               </>
             )}

@@ -30,6 +30,19 @@ not tenant accounts.
 For a local demonstration only, use the address your operator provides.
 `localhost` refers to the device opening the page, not another person's PC.
 
+## Contact your landlord
+
+Open **Messages** from the phone bottom navigation, or check **My rentals**.
+Your landlord can publish Call, SMS and WhatsApp contacts for your buildings;
+blank building channels use the company's defaults. If no buttons appear, ask
+the landlord to configure a contact channel.
+
+These buttons open another app, not an automated JOJOBUILDS messaging service.
+Confirm the recipient and call/send there yourself. WhatsApp requires an active
+recipient account. Phone, SMS and data charges may apply. Messages sent there
+do not appear in the in-app conversation or have JOJOBUILDS delivery tracking.
+Avoid sending sensitive rental or financial information to external services.
+
 ## 2. Find your way around
 
 | Page                | What you can do                                                                                      |

@@ -85,6 +85,7 @@ export interface Preview {
   total: number;
 }
 export interface Queries {
+  "organization-contact": components["schemas"]["OrganizationContact"];
   properties: Property[];
   units: Unit[];
   tenants: Tenant[];

@@ -41,6 +41,8 @@ import { useState } from "react";
 import type { WorkspaceContext } from "./workspace";
 import { Badge, Empty, ErrorBox, Loading, SectionHead } from "./ui";
 import { ServiceWorkPanel } from "./service-work-panel";
+import { ContactLinks } from "./contact-links";
+import { CompanyContactSettings, LandlordContact } from "./contact-panels";
 
 export type FormKind =
   | "property"
@@ -794,7 +796,7 @@ export function RentalsPanel({ ctx }: { ctx: WorkspaceContext }) {
                     </strong>
                   </div>
                 </div>
-                {r.contact && <p className="muted">Landlord / managing contact: {r.contact}</p>}
+                <LandlordContact ctx={ctx} building={r} />
                 <button
                   className="button secondary wide"
                   onClick={() => ctx.navigate("payments", r.id)}
@@ -916,6 +918,14 @@ export function TenantsPanel({ ctx }: { ctx: WorkspaceContext }) {
                         <div>
                           <strong>{person.name}</strong>
                           <small>{person.email || person.phone || "No contact added"}</small>
+                          <ContactLinks
+                            channels={{
+                              call_phone: person.phone,
+                              sms_phone: person.phone,
+                              whatsapp_phone: person.phone,
+                            }}
+                            recipient={person.name}
+                          />
                         </div>
                       </div>
                     </td>
@@ -1552,6 +1562,7 @@ export function SettingsPanel({ ctx }: { ctx: WorkspaceContext }) {
   if (firstError) return <ErrorBox message={firstError.message} retry={() => void ctx.refresh()} />;
   return (
     <div className="settings-stack">
+      <CompanyContactSettings ctx={ctx} />
       <section className="surface">
         <SectionHead title={ctx.org.name} label="WORKSPACE DETAILS" />
         <div className="settings-details">

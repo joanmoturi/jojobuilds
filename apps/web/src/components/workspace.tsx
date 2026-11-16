@@ -47,6 +47,7 @@ import { Login } from "./auth/login";
 import { MessagingPanel } from "./messaging-panel";
 import { OfflineSummaryControl } from "./offline-summary-control";
 import { clearSummary } from "@/lib/offline";
+import { LandlordContactDirectory } from "./contact-panels";
 
 export type Api = ReturnType<typeof createApi>;
 export interface WorkspaceContext {
@@ -296,6 +297,10 @@ function AuthenticatedWorkspace({
       (item.key !== "owner-finances" || role === "owner"),
   );
   const current = allowed.find((item) => item.key === tab);
+  const mobileNavigation = ["overview", "properties", "messages", "payments"].flatMap((key) => {
+    const item = allowed.find((entry) => entry.key === key);
+    return item ? [item] : [];
+  });
   const labelFor = (key: Tab, label: string) => (tenant ? tenantLabels[key] : undefined) ?? label;
   const title =
     tab === "settings" ? "Workspace settings" : labelFor(tab, current?.label ?? "Your workspace");
@@ -548,6 +553,7 @@ function AuthenticatedWorkspace({
           {tab === "balances" && role === "manager" && <CoordinationPanel ctx={ctx} balancesOnly />}
           {tab === "messages" && (
             <>
+              {tenant && <LandlordContactDirectory ctx={ctx} />}
               <MessagingPanel
                 key={ctx.org.id}
                 api={ctx.api}
@@ -575,7 +581,7 @@ function AuthenticatedWorkspace({
           </footer>
         </main>
         <nav className="mobile-bottom" aria-label="Mobile navigation">
-          {allowed.slice(0, 4).map(({ key, label, icon: Icon }) => (
+          {mobileNavigation.map(({ key, label, icon: Icon }) => (
             <button
               key={key}
               className={tab === key ? "active" : ""}

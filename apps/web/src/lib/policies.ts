@@ -1,4 +1,4 @@
-export const policyVersion = "2026-11-15";
+export const policyVersion = "2026-11-16";
 
 export interface Policy {
   title: string;
@@ -30,6 +30,10 @@ export const policies: Record<string, Policy> = {
         text: "Google sign-in is optional and disabled until configured. Clicking Continue with Google takes you to Google, which applies its own privacy terms. The application requests basic identity scopes (openid, email and profile), verifies the identity and stores an account association. Existing password accounts must explicitly connect Google while signed in. Password sign-in remains available. No analytics, advertising pixels or third-party embedded media have been added to the application.",
       },
       {
+        title: "Optional external contact links",
+        text: "Owners may publish authorized company and building phone numbers to their tenants. Authorized tenant views may offer contact links using the tenant's optional phone number; confirm the recipient's preferred channel before use. Call, SMS and WhatsApp links open another application only when selected. No message is automatically sent, prefilled or synchronized to the JOJOBUILDS inbox, and no WhatsApp SDK or embedded widget is loaded. After you choose to open WhatsApp, it processes the destination number and your account, device and message information under its own terms. Phone and messaging providers handle calls and SMS under their terms. Avoid sharing sensitive rental or financial information through external services.",
+      },
+      {
         title: "Your device and offline summaries",
         text: "An offline summary is saved only when you explicitly choose Save summary. It contains selected totals, currency and reporting month, not names, contacts, messages, credentials, individual payments or uploaded files. The browser copy is not encrypted by the app and can be read by another person using the same browser profile. It expires on access after 24 hours, is replaced on the next save, and is cleared by sign-out or Clear saved summary. Other open tabs discard saved summaries on sign-out. Browser storage may be removed at any time. Downloaded summary backups are encrypted using the passphrase you choose; losing it means the file cannot be recovered.",
       },
@@ -59,6 +63,10 @@ export const policies: Record<string, Policy> = {
         text: "Offline mode is a read-only copy of selected totals, may be stale and cannot accept or queue changes. It is not a full database backup. Losing browser storage or a device can remove it. Maintain independently verified backups of the database and uploaded files using the operator backup procedure. A downloaded summary cannot restore the rental ledger.",
       },
       {
+        title: "External contact services",
+        text: "Contact buttons open your phone, SMS or WhatsApp application for you to confirm and initiate contact. JOJOBUILDS does not guarantee the number is current, that the recipient uses WhatsApp, or that a message is delivered. Phone, SMS and data charges may apply. External messages remain separate from in-app conversations and are subject to the selected provider's terms. A published phone number does not authorize marketing or other unrelated contact.",
+      },
+      {
         title: "Availability, changes and rights",
         text: "Development access may be interrupted, changed or withdrawn. Nothing here excludes rights or remedies that cannot lawfully be excluded, or limits responsibility where doing so is prohibited by applicable law. These terms do not establish a paid service contract, an exclusive court jurisdiction or a blanket waiver of consumer rights. Kenyan legal and consumer-law review is required before commercial launch; other laws may apply to customers elsewhere.",
       },
@@ -82,6 +90,10 @@ export const policies: Record<string, Policy> = {
       {
         title: "Tracking choices",
         text: "The application currently contains no analytics, advertising cookies, fingerprinting scripts, embedded maps, video players or social widgets. There is therefore no Accept all tracking banner. Essential sign-in cookies are explained rather than represented as optional. Offline storage is separately user-requested. Reassess consent and block any optional tracker before loading it if tracking or embeds are introduced. A hosting provider's own logging or injected analytics must also be reviewed before deployment.",
+      },
+      {
+        title: "External contact links",
+        text: "Call, SMS and WhatsApp buttons are ordinary user-selected links, not tracking widgets or embedded third-party scripts. They do not load an external contact service before selection. Visiting WhatsApp can result in that service using its own cookies or device storage under its policies. No additional optional tracker has been introduced for contact buttons.",
       },
       {
         title: "Control",

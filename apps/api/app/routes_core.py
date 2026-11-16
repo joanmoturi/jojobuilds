@@ -23,6 +23,29 @@ from .providers import INTEGRATIONS
 router = APIRouter(prefix="/api/v1", tags=["portfolio"])
 
 
+def contact_channels(record):
+    return {field: getattr(record, field) for field in s.CONTACT_CHANNELS}
+
+
+@router.get("/organization-contact", response_model=s.OrganizationContact)
+def organization_contact(ctx: Context = Depends(context)):
+    return {"name": ctx.org.name, **contact_channels(ctx.org)}
+
+
+@router.put("/organization-contact", response_model=s.OrganizationContact)
+def update_organization_contact(
+    data: s.OrganizationContact,
+    ctx: Context = Depends(context),
+    db: Session = Depends(get_db),
+):
+    if ctx.member.role != "owner":
+        raise HTTPException(403, "Only the owner can change company contacts")
+    for key, value in data.model_dump().items():
+        setattr(ctx.org, key, value)
+    audit(db, ctx, "organization.contact_updated", ctx.org.id)
+    return {"name": ctx.org.name, **contact_channels(ctx.org)}
+
+
 def visible_tenancies(db: Session, ctx: Context):
     query = (
         select(m.Tenancy)
@@ -70,6 +93,7 @@ def properties(
                 location=prop.location,
                 county=prop.county,
                 contact=prop.contact,
+                **contact_channels(prop),
                 units=len(units),
                 occupied=len(active),
                 billed=total if show_money else None,
@@ -111,7 +135,9 @@ def update_property(
         )
         if active:
             raise HTTPException(409, "End active tenancies before archiving a property")
-    for key, value in data.model_dump().items():
+    # Older clients omit the new channels; preserve them unless explicitly edited.
+    omitted_channels = set(s.CONTACT_CHANNELS) - data.model_fields_set
+    for key, value in data.model_dump(exclude=omitted_channels).items():
         setattr(prop, key, value)
     audit(db, ctx, "property.updated", prop.id)
     return {"id": prop.id}
@@ -270,6 +296,7 @@ def rentals(ctx: Context = Depends(context), db: Session = Depends(get_db)):
                 location=prop.location,
                 county=prop.county,
                 contact=prop.contact,
+                **contact_channels(prop),
                 number=unit.number,
                 building=unit.building,
                 floor=unit.floor,

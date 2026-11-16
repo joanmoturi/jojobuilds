@@ -45,6 +45,9 @@ class Organization(Base):
     timezone: Mapped[str] = mapped_column(String(60), default="Africa/Nairobi")
     country: Mapped[str] = mapped_column(String(2), default="KE")
     demo: Mapped[bool] = mapped_column(Boolean, default=False)
+    call_phone: Mapped[str] = mapped_column(String(16), default="", server_default="")
+    sms_phone: Mapped[str] = mapped_column(String(16), default="", server_default="")
+    whatsapp_phone: Mapped[str] = mapped_column(String(16), default="", server_default="")
 
 
 class Membership(Base):
@@ -65,6 +68,9 @@ class Property(Base):
     location: Mapped[str] = mapped_column(String(200))
     county: Mapped[str] = mapped_column(String(80), default="")
     contact: Mapped[str] = mapped_column(String(150), default="")
+    call_phone: Mapped[str] = mapped_column(String(16), default="", server_default="")
+    sms_phone: Mapped[str] = mapped_column(String(16), default="", server_default="")
+    whatsapp_phone: Mapped[str] = mapped_column(String(16), default="", server_default="")
     archived: Mapped[bool] = mapped_column(Boolean, default=False)
 
 

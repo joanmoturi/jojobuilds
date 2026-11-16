@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
 
 Role = Literal["owner", "manager", "agent", "caretaker", "maintenance", "finance", "tenant"]
 Money = Annotated[int, Field(strict=True, gt=0, le=1_000_000_000_000)]
@@ -46,7 +46,26 @@ class Invite(Input):
         return self
 
 
-class PropertyIn(Input):
+CONTACT_CHANNELS = ("call_phone", "sms_phone", "whatsapp_phone")
+ContactPhone = Annotated[str, Field(pattern=r"^(\+[1-9][0-9]{6,14})?$", max_length=16)]
+
+
+class ContactChannels(Input):
+    call_phone: ContactPhone = ""
+    sms_phone: ContactPhone = ""
+    whatsapp_phone: ContactPhone = ""
+
+    @field_validator(*CONTACT_CHANNELS, mode="before")
+    @classmethod
+    def normalize_phone(cls, value):
+        return value.translate(str.maketrans("", "", " ()-")) if isinstance(value, str) else value
+
+
+class OrganizationContact(ContactChannels):
+    name: str = Field(min_length=1, max_length=150)
+
+
+class PropertyIn(ContactChannels):
     name: str = Field(min_length=1, max_length=150)
     location: str = Field(min_length=1, max_length=200)
     county: str = Field(default="", max_length=80)
@@ -195,6 +214,9 @@ class PropertyOut(BaseModel):
     location: str
     county: str
     contact: str
+    call_phone: str = ""
+    sms_phone: str = ""
+    whatsapp_phone: str = ""
     units: int
     occupied: int
     billed: int | None
@@ -242,6 +264,9 @@ class RentalOut(TenancyOut):
     location: str
     county: str
     contact: str
+    call_phone: str = ""
+    sms_phone: str = ""
+    whatsapp_phone: str = ""
     number: str
     building: str
     floor: str

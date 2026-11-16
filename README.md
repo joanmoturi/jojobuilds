@@ -112,7 +112,13 @@ This is an initial operational implementation, **not a claim that all 755 lines
 of the web prompt and the mobile prompt are complete**. Read
 `docs/POST_BUILD_CHECKLIST.md` before real tenant data or public hosting.
 
-Bank feeds, M-Pesa Daraja, WhatsApp/SMS and push delivery are disabled. PDF statement
+Company/building contact settings offer user-initiated Call, SMS and WhatsApp links.
+Owners set company defaults in **Settings & access** and building overrides in
+**Properties**; tenants use **Messages** or **My rentals**. See the
+[contact setup guide](docs/USER_GUIDE.md#company-and-building-contact-channels).
+These links open another app; they do not send or synchronize messages.
+
+Bank feeds, M-Pesa Daraja, automated WhatsApp/SMS and push delivery are disabled. PDF statement
 OCR, automatic deposit refund handling, a full accounting journal, lease-document
 generation, move-in/out inspections, announcements, self-service organization
 settings, a platform-admin console and the complete commercial lifecycle are not

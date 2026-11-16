@@ -61,3 +61,9 @@ def test_migration_keeps_existing_maintenance_and_attachments(tmp_path):
         assert db.execute("SELECT tenancy_id, amount FROM charges").fetchall() == [
             ("lease", 4000000)
         ]
+        assert db.execute(
+            "SELECT call_phone, sms_phone, whatsapp_phone FROM organizations"
+        ).fetchall() == [("", "", "")]
+        assert db.execute(
+            "SELECT contact, call_phone, sms_phone, whatsapp_phone FROM properties"
+        ).fetchall() == [("", "", "", "")]

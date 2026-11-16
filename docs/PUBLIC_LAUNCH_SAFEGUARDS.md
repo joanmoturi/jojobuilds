@@ -1,6 +1,6 @@
 # Public-launch safeguards and pending business details
 
-Updated November 15, 2026. This is an implementation inventory, not legal advice,
+Updated November 16, 2026. This is an implementation inventory, not legal advice,
 a compliance certificate, accessibility certification or a guarantee against claims.
 Use synthetic records until the operator/legal/security release gates are met.
 
@@ -85,6 +85,10 @@ retrieved, but does not replace local legal review. Do not mark the legal gate d
 
 ## Pending operator checklist
 
+- [ ] Verify published company/building contacts and tenant communication preferences;
+      contact links are optional and do not authorize marketing. External-app
+      disclosures are included in privacy/terms/cookie pages; no contact SDK,
+      tracking widget or automated WhatsApp/SMS delivery has been added.
 - [ ] Supply and verify the blank business/contact fields above.
 - [ ] Get Kenyan legal review of actual activities and proposed public terms/notices.
 - [ ] Determine ODPC registration duties and complete any required registration.

@@ -320,7 +320,7 @@ worker's name, progress valid statuses and add tenant-visible notes. The
 **Recorded cost** is an estimate/reference, not evidence of an outgoing payment.
 Record an actual supplier obligation/payment under **Service providers**.
 
-Notifications are visible inside the app. SMS, WhatsApp and push delivery are
+Notifications are visible inside the app. Automated SMS, WhatsApp and push delivery are
 not active.
 
 ## Water, garbage and other tenant bills
@@ -558,9 +558,41 @@ Source/bundle verification is not proof of physical-device behavior; no signed
 APK has been installed here. Tenants and providers currently use the responsive
 website; Google sign-in/connect is also web-only and disabled without server credentials.
 
+## Company and building contact channels
+
+After the operator creates your company workspace and owner account, open
+**Settings & access > Company contact details**. Set the company/landlord name
+and optional Call, SMS and WhatsApp numbers. Only the owner can change them.
+This does not add public company self-registration; account onboarding remains
+operator/invitation-based.
+
+Use international numbers such as `+254712345678`. Repeat the same number in
+each field for the channels you offer, or supply different authorized contacts.
+Leave unwanted company channels blank. Under **Properties**, add or edit a
+building to override individual channels. A blank building channel inherits its
+company default; to remove that channel entirely, clear both numbers.
+
+Tenants see contacts for their linked buildings in **Messages** (also in phone
+bottom navigation) and **My rentals**. Authorized landlord/staff tenant views
+also offer links when the tenant phone is in valid international format.
+Confirm the tenant's preferred channel before using it; a phone number does not
+prove the person uses WhatsApp or authorize marketing.
+
+**Call**, **Open SMS** and **Open WhatsApp** open the dialler, SMS application or
+WhatsApp. The user confirms the recipient and initiates the call/message there.
+No message text is prefilled, and no external contact widget or SDK loads in the
+workspace. Messages are not copied into the JOJOBUILDS inbox and delivery is not
+tracked. Phone, SMS and data charges may apply. Avoid sharing sensitive rental
+or financial information through these links.
+
+WhatsApp uses its documented [click-to-chat format](https://faq.whatsapp.com/5913398998672934)
+and requires an active recipient account. No WhatsApp Business API credentials
+or paid messaging provider are needed for these links.
+
 ## WhatsApp integration boundary
 
-WhatsApp is not active; no external messages are sent. Adding an adapter is a
+Automated WhatsApp delivery is not active; JOJOBUILDS sends no external messages.
+The user-initiated contact links above are separate. Adding an adapter is a
 moderate integration project, not a login toggle. Plan authorized provider
 onboarding, a production HTTPS webhook, webhook signature validation, protected
 server credentials, recorded messaging preferences/consent, approved templates,
